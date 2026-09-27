@@ -6,29 +6,38 @@
     <meta name="description" content="About Yu Chuan Oh — from professional kitchens to writing software.">
     <title>About — Yu Chuan Oh</title>
 
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="pages.css">
-    <link rel="stylesheet" href="style-fixes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header class="header">
-        <a href="index.html" class="logo">Yu Chuan<span></span></a>
+        <a href="index.html" class="logo">Yu Chuan</a>
 
-        <i class="fa-solid fa-bars" id="menu-icon"></i>
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html" class="active">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
 
-        <nav class="navbar">
-            <a href="index.html">Home</a>
-            <a href="about.html" class="active">About Me</a>
-            <a href="projects.html">Projects</a>
-            <a href="journal.html">Journal</a>
-            <a href="index.html#contact">Contact</a>
-        </nav>
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
     </header>
 
     <section class="page-section" id="about">
@@ -36,110 +45,99 @@
         <h2 class="heading">From the <span>Kitchen</span> to the Keyboard</h2>
 
         <div class="doc">
+            <p>I spent 2 years as a chef before I started writing code. In a kitchen you learn to work under
+               pressure: everything in its place before service, no wasted motion, and a plate that's right
+               the first time, because once it leaves the pass there's no second chance.</p>
 
-            <p>I spent 2 years as a chef before I started writing code. In a kitchen you learn to
-               work under pressure: everything in its place before service, no wasted motion, and a
-               plate that's right the first time — because once it leaves the pass, there's no
-               second chance.</p>
+            <p>That discipline didn't go anywhere when I changed careers. I just pointed it at a different
+               craft. These days the mise en place is a clean project structure, and the rush is a deadline
+               instead of a dinner service. I used to serve tables their meals; now I serve APIs their requests.</p>
 
-            <p>That discipline didn't go anywhere when I changed careers. I just pointed it at a
-               different craft. These days the mise en place is a clean project structure, and the
-               rush is a deadline instead of a dinner service. I used to serve tables their meals;
-               now I serve APIs their requests.</p>
-
-            <p>I've graduated in Bachelor's in Comp Science at BSBI / teaching myself and building projects], working
-               mostly with [Python and SQL]. I'm looking for a graduate role /
-               an internship] where I can keep learning from people who are better than me and
-               ship things that actually get used.</p>
+            <p>I've graduated with a Bachelor's in Computer Science from BSBI, working mostly with Python and SQL.
+               I'm looking for a graduate role or an internship where I can keep learning from people who are
+               better than me and ship things that actually get used.</p>
 
             <h2>How the kitchen shows up in my code</h2>
 
-            <p><strong>Mise en place.</strong> Set up before you start. Read the docs, sketch the
-               structure, know where things go — then write. Debugging a mess you made in a hurry
-               costs more time than planning ever does.</p>
+            <p><strong>Mise en place.</strong> Set up before you start. Read the docs, sketch the structure,
+               know where things go, then write. Debugging a mess you made in a hurry costs more time than
+               planning ever does.</p>
 
-            <p><strong>Check it before it leaves the pass.</strong> Nothing ships without being
-               looked over. It's the same instinct behind testing your own work before someone
-               else finds the problem.</p>
+            <p><strong>Check it before it leaves the pass.</strong> Nothing ships without being looked over.
+               It's the same instinct behind testing your own work before someone else finds the problem.</p>
 
-            <p><strong>Service doesn't stop.</strong> Kitchens teach you to stay calm when three
-               things break at once and keep working the problem instead of panicking about it.</p>
-
+            <p><strong>Service doesn't stop.</strong> Kitchens teach you to stay calm when three things break
+               at once and keep working the problem instead of panicking about it.</p>
         </div>
     </section>
 
-    <!-- Timeline -->
+    <!-- ===== TIMELINE ===== -->
     <section class="education" id="education">
-        <h2 class="heading">Where I've Been</h2>
+        <h2 class="heading">Where I've <span>Been</span></h2>
 
         <div class="timeline-items">
-
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
-                <div class="timeline-date">[years]</div>
+                <div class="timeline-date">2020</div>
                 <div class="timeline-content">
-                    <h3>Chef, [T&A]</h3>
-                    <p>[Service under time pressure, consistency, working a station in a team.
-                       Frame it as transferable — it genuinely is.]</p>
+                    <h3>Chef, T&amp;A</h3>
+                    <p>Two years across high-volume restaurant lines, café prep and retail bakery work:
+                       service under time pressure, consistency, and working a station as part of a team.</p>
                 </div>
             </div>
 
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
-                <div class="timeline-date">2023 - 26</div>
+                <div class="timeline-date">2023 – 26</div>
                 <div class="timeline-content">
-                    <h3>[Computer Science], [BSBI]</h3>
-                    <p>[Graduated with a B.Sc. (Hons) in Computer Science from BSBI Berlin (2023–2026), 
-                        grounded in core software engineering principles, algorithms, and database systems. 
-                        Specialized in practical AI/LLM integration and applied machine learning, with project 
-                        experience spanning 3NF normalized relational database architecture and automated forecasting pipelines.]</p>
+                    <h3>BSc (Hons) Computer Science, BSBI Berlin</h3>
+                    <p>Core software engineering, algorithms and database systems, with a focus on AI/LLM
+                       integration, 3NF database design and automated forecasting pipelines.</p>
                 </div>
             </div>
 
+            <!-- TODO: fill in, or delete this block if it hasn't started yet -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-date">2026</div>
                 <div class="timeline-content">
-                    <h3>[Working Student], [Mmaah]</h3>
-                    <p>[What you worked on, what you used, one thing you shipped. If this hasn't
-                       happened yet, delete the block — a short honest timeline beats a padded one.]</p>
+                    <h3>Working Student, Mmaah</h3>
+                    <p>What you worked on, what you used, and one thing you shipped.</p>
                 </div>
             </div>
-
         </div>
     </section>
 
     <section class="page-section">
-        <div class="doc" style="text-align: center;">
-            <h2 style="border: none; padding: 0; text-align: center;">Let's talk</h2>
-            <p>If you're hiring, or you just want to compare notes on career changes, I'd like to
-               hear from you.</p>
-            <div class="doc-links" style="justify-content: center;">
-                <a href="index.html#contact" class="link-demo">Get in touch</a>
-                <a href="Developer CV.pdf" class="link-code" target="_blank" rel="noopener noreferrer">Download résumé</a>
+        <div class="doc center">
+            <h2 class="heading">Let's <span>talk</span></h2>
+            <p>If you're hiring, or you just want to compare notes on career changes, I'd like to hear from you.</p>
+
+            <div class="doc-links center">
+                <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" class="btn primary" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-linkedin-in"></i>Message me on LinkedIn
+                </a>
+                <a href="AI Engineer CV.pdf" class="btn" target="_blank" rel="noopener noreferrer">Download résumé</a>
             </div>
         </div>
     </section>
 
     <footer class="footer">
-        <div class="social">
-            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin-in"></i></a>
-            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i></a>
-            <a href="https://x.com/YC82628"target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
         </div>
 
-        <ul class="list">
+        <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About Me</a></li>
             <li><a href="index.html#services">Services</a></li>
             <li><a href="projects.html">Projects</a></li>
             <li><a href="journal.html">Journal</a></li>
-            <li><a href="index.html#contact">Contact</a></li>
         </ul>
 
-        <p class="copyright">
-            &copy; Yu Chuan Oh | All Rights Reserved
-        </p>
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
     </footer>
 
     <script src="script.js"></script>

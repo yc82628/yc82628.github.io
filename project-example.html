@@ -6,31 +6,40 @@
     <meta name="description" content="Manga Reader — a project by Yu Chuan Oh.">
     <title>Manga Reader — Yu Chuan Oh</title>
 
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
     <header class="header">
-        <a href="index.html" class="logo">Yu Chuan<span></span></a>
+        <a href="index.html" class="logo">Yu Chuan</a>
 
-        <i class="fa-solid fa-bars" id="menu-icon"></i>
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
 
-        <nav class="navbar">
-            <a href="index.html">Home</a>
-            <a href="projects.html" class="active">Projects</a>
-            <a href="journal.html">Journal</a>
-            <a href="index.html#contact">Contact</a>
-        </nav>
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
     </header>
 
-    <!-- ===== PROJECT DETAIL ===== -->
     <section class="page-section">
         <div class="doc">
             <a href="projects.html" class="back-link">&larr; back to projects</a>
@@ -61,31 +70,30 @@
             <h2>What I'd do next</h2>
             <p>[Optional: one honest line about what you'd improve. Shows self-awareness.]</p>
 
+            <!-- TODO: replace "#" with the real demo and GitHub links -->
             <div class="doc-links">
-                <a href="#" class="link-demo" target="_blank" rel="noopener noreferrer">Live demo</a>
-                <a href="#" class="link-code" target="_blank" rel="noopener noreferrer">View code</a>
+                <a href="#" class="btn primary" target="_blank" rel="noopener noreferrer">Live demo</a>
+                <a href="#" class="btn" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code</a>
             </div>
         </div>
     </section>
 
-    <!-- ===== FOOTER ===== -->
     <footer class="footer">
-        <div class="social">
-            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin-in"></i></a>
-            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i></a>
-            <a href="https://x.com/YC82628"target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
         </div>
 
-        <ul class="list">
+        <ul>
             <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
             <li><a href="projects.html">Projects</a></li>
             <li><a href="journal.html">Journal</a></li>
-            <li><a href="index.html#contact">Contact</a></li>
         </ul>
 
-        <p class="copyright">
-            &copy; Yu Chuan Oh | All Rights Reserved
-        </p>
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
     </footer>
 
     <script src="script.js"></script>

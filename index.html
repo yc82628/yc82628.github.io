@@ -3,201 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Portfolio Website</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Yu Chuan Oh — former chef turned AI & full-stack engineer. Projects, services and journal.">
+    <title>Yu Chuan Oh — Portfolio</title>
 
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="pages.css">
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
     <header class="header">
-        <a href="#home" class="logo">Yu Chuan<span></span></a>
+        <a href="index.html" class="logo">Yu Chuan</a>
 
-        <i class="fa-solid fa-bars" id="menu-icon"></i>
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html" class="active">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
 
-        <nav class="navbar">
-            <a href="index.html" class="active">Home</a>
-            <a href="about.html">About Me</a>
-            <a href="projects.html">Projects</a>
-            <a href="journal.html">Journal</a>
-            <a href="#contact">Contact</a>
-        </nav>
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
     </header>
 
+    <!-- ===== HERO ===== -->
     <section class="home" id="home">
         <div class="home-content">
-            <h1>Hi, it's <span>Yu Chuan</span></h1>        
-            <h3 class="text-animation">I'm a <span></span></h3>
+            <h1>Hi, it's <span>Yu Chuan</span></h1>
 
-            <p>From Cooking to Sorting ().
-                Here is a journal on my journey how I have gone from chasing for the perfect mise en place. To now finding
-                the perfect balance in coding. From holding a Chef Knife to a mechanical keyboard, my logic has stayed the same
-                discipline, patience and efficient before the customers arrives. I have used to serve tables with their hungry belly,
-                now I serve APIs their technological appetite. 
+            <!-- The role after "I'm a" is typed out by script.js, which also switches "a" to "an"
+                 when needed. Screen readers skip the animation and read the .sr-only sentence instead. -->
+            <h3 class="text-animation">
+                <span aria-hidden="true">I'm <span id="typed-article">a</span> <span class="typed" id="typed">Data Analyst</span><span class="cursor"></span></span>
+                <span class="sr-only">I'm a Data Analyst, Full Stack Developer, Software Tester and AI Engineer</span>
+            </h3>
+
+            <p class="intro">
+                From chef's knife to mechanical keyboard. I spent two years on kitchen lines before I wrote code,
+                and the habits came with me: set up before service, stay calm when three things break at once,
+                and check every plate before it leaves the pass.
             </p>
 
             <div class="social-icons">
-                <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/"target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin-in"></i></a>
-                <a href="https://github.com/yc82628"target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i></a>
-                <a href="https://x.com/YC82628"target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
             </div>
 
             <div class="btn-group">
-                <a href="projects.html" class="btn">View my work</a>
-                <a href="Developer CV.pdf" class="btn" target="_blank" rel="noopener noreferrer">Résumé</a>
-                <a href="#contact" class="btn">Contact</a>
+                <a href="projects.html" class="btn primary">View my work</a>
+                <a href="AI Engineer CV.pdf" class="btn" target="_blank" rel="noopener noreferrer">Résumé</a>
+                <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" class="btn" target="_blank" rel="noopener noreferrer">Connect on LinkedIn</a>
             </div>
         </div>
 
         <div class="home-img">
-            <img src="Anime_Profile.jpeg" alt="Profile Picture">
+            <img src="Anime_Profile.jpeg" alt="Illustrated portrait of Yu Chuan">
         </div>
     </section>
 
-    <section class="timeline" id="timeline">
-        <h2 class="heading">Timeline</h2>
+    <!-- ===== FEATURED PROJECTS (each card opens that project on projects.html) ===== -->
+    <section class="featured" id="featured">
+        <span class="eyebrow">selected work</span>
+        <h2 class="heading">Featured <span>Projects</span></h2>
 
-        
-    <div class="timeline-items">
-    <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2020</div>
-        <div class="timeline-content">
-            <h3>Chef, T&A</h3>
-            <p>Versatile Culinary Professional with 2 years of cross-functional kitchen experience spanning high-volume restaurant lines, 
-                cafe prep, and retail bakery operations. Combines strong foundational cooking techniques with baking precision and multi-station efficiency.
-            </p>
-                </div>
-            </div>
+        <div class="work-grid">
+            <a href="projects.html#daytonator" class="work-card">
+                <h3>Daytonator</h3>
+                <div class="work-tags"><span>Python</span><span>HTML</span></div>
+                <p>Catches AI coding agents installing hallucinated, malware-registered packages.</p>
+                <span class="work-open">View project</span>
+            </a>
 
+            <a href="projects.html#medical-imaging" class="work-card">
+                <h3>Medical Imaging</h3>
+                <div class="work-tags"><span>Python</span><span>HTML</span><span>Batchfile</span></div>
+                <p>Upload a retina scan and a model grades diabetic retinopathy severity.</p>
+                <span class="work-open">View project</span>
+            </a>
+
+            <a href="projects.html#ai-agent-42" class="work-card">
+                <h3>AI Agent 42</h3>
+                <div class="work-tags"><span>Python</span><span>Qwen</span></div>
+                <p>Built my own AI agent at my first hackathon.</p>
+                <span class="work-open">View project</span>
+            </a>
         </div>
 
-    <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2023 - 26</div>
-        <div class="timeline-content">
-            <h3>BSC Computer Science, BSBI</h3>
-            <p>Graduated my Bachelor's, grounded in core software engineering principles, 
-                algorithms, and database systems. Specialized in practical AI/LLM integration and applied machine learning, with project experience 
-                spanning 3NF normalized relational database architecture and automated forecasting pipelines.</p>
+        <div class="center">
+            <a href="projects.html" class="btn primary">See all projects &rarr;</a>
         </div>
-    </div>
-
-
-    <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2026</div>
-        <div class="timeline-content">
-            <h3>AI Enginneer / Full Stack, Hackathon </h3>
-            <p>High-velocity Full-Stack & AI Engineer and computer science student with a proven track record of shipping end-to-end applications under extreme time 
-            constraints across multiple hackathons. Specialized in bridging modern front-end/back-end architectures with advanced AI/LLM integration—from autonomous 
-            agents and custom API layers to scalable cloud backends. Thrives in fast-paced, iterative build cycles, turning complex technical specifications into working, 
-            fully tested products in 48 hours or less.</p>
-        </div>
-    </div>
-
-    
     </section>
 
+    <!-- ===== SERVICES ===== -->
     <section class="services" id="services">
         <h2 class="heading">Services</h2>
 
         <div class="services-container">
-
             <div class="service-box">
-                <div class="service-info">
-                    <h4>Web Developer</h4>
-                    <p>HTML, CSS and JavaScript, written by hand. I build responsive layouts
-                       and care how a page behaves on a phone, not just a laptop this site
-                       is one of them.</p> 
-                </div>
+                <h4>Data Analyst</h4>
+                <p>Turning raw, messy data into something a person can actually act on. Cleaning and reshaping
+                   datasets in Python, then presenting the result so the finding is obvious.</p>
             </div>
 
             <div class="service-box">
-                <div class="service-info">
-                    <h4>Data Analyst</h4>
-                    <p>Turning raw, messy data into something a person can actually act on.
-                       Cleaning and reshaping datasets in Python, then presenting the result
-                       so the finding is obvious rather than buried.</p> 
-                </div>
+                <h4>Full Stack Developer</h4>
+                <p>Hand-written HTML, CSS and JavaScript on the front end, Python services and APIs behind it.
+                   Responsive pages that work on a phone, and backends that cope with data that never arrives
+                   in the shape the docs promised.</p>
             </div>
 
             <div class="service-box">
-                <div class="service-info">
-                    <h4>Backend Developer</h4>
-                    <p>Python on the server side. Writing scripts and small services, working
-                       with APIs, and handling data that never arrives in quite the shape the
-                       documentation promised.</p> 
-                </div>
+                <h4>Testing</h4>
+                <p>The kitchen habit that transferred most directly: check it before it leaves the pass.
+                   Writing test cases, hunting edge cases, and reproducing a bug before fixing it.</p>
             </div>
 
             <div class="service-box">
-                <div class="service-info">
-                    <h4>Game Developer</h4>
-                    <p>Where I started, because it's the fastest way to see your code do
-                       something. Small games in Python that taught me game loops, state and
-                       collision handling before I knew the proper names for any of it.</p>
-                </div>
+                <h4>AI Engineering</h4>
+                <p>Practical AI/LLM integration: building my own agents, wiring models like Qwen into real apps,
+                   and applied machine learning, from spotting hallucinated packages to grading retina scans.</p>
             </div>
-
-            <div class="service-box">
-                <div class="service-info">
-                    <h4>Testing</h4>
-                    <p>The kitchen habit that transferred most directly: check it before it
-                       leaves the pass. Writing test cases, hunting edge cases, and reproducing
-                       a bug reliably before trying to fix it.</p> 
-                </div>
-            </div>
-
         </div>
     </section>
 
-    <section class="contact" id="contact">
-        <h2 class="heading">Contact <span>Me</span></h2>
-
-        <form action="https://formspree.io/f/YOUR_ID" method  ="POST">
-            <div class="input-group">
-                <div class="input-box">
-                    <input type="text" placeholder="Full Name" required>
-                    <input type="email" placeholder="Email" required>
-                </div>
-                <div class="input-box">
-                    <input type="number" placeholder="Phone No">
-                    <input type="subject" placeholder="Subject">
-                </div>
-            </div>
-
-            <div class="input-group-2">
-                <textarea name="" id="" cols="30" rows="10" placeholder="Your Message" required></textarea>
-                <input type="submit" value="Send" class="btn">
-            </div>
-        </form>
+    <!-- ===== LET'S CONNECT (replaces the old contact form) ===== -->
+    <section class="connect" id="connect">
+        <h2 class="heading">Let's <span>connect</span></h2>
+        <p>Hiring, or working on something interesting? The quickest way to reach me is a message on LinkedIn.</p>
+        <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" class="btn primary" target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-linkedin-in"></i>Message me on LinkedIn
+        </a>
     </section>
 
     <footer class="footer">
-        <div class="social">
-            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin-in"></i></a>
-                <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i></a>
-                <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
         </div>
 
-        <ul class="list">
+        <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About Me</a></li>
             <li><a href="index.html#services">Services</a></li>
             <li><a href="projects.html">Projects</a></li>
             <li><a href="journal.html">Journal</a></li>
-            <li><a href="index.html#contact">Contact</a></li>
         </ul>
-        
-        <p class="copyright">
-            @ Yu Chuan Oh | All Rights Reserved
-        </p>
-    </footer>  
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
