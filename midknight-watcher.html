@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Midknight Watcher: an autonomous coding agent built at the 42 Berlin x Needle hackathon.">
+    <title>Midknight Watcher — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="projects.html" class="back-link">&larr; back to projects</a>
+
+            <h1>Midknight Watcher <span style="color: var(--muted); font-weight: 500">(AI Agent 42)</span></h1>
+
+            <div class="doc-meta">
+                <span>Python</span>
+                <span>Cerebras · Groq · Ollama</span>
+                <span>42 Berlin &times; Needle Hackathon</span>
+                <span>May 2026</span>
+            </div>
+
+            <p class="project-pitch">An autonomous coding agent. Given a hidden spec, it plans, writes code, runs the
+               tests and repairs its own work overnight, with a three-tier model fallback so it keeps going when an
+               API goes down.</p>
+            <p><strong>My role:</strong> a team of two. Sushi (Shrish Arunesh) wrote the agent; I monitored the
+               overnight run and handled the Friday-morning recovery.</p>
+        </div>
+
+        <!-- ===== DEMO: replays the real run from the logs (demos/midknight.js) ===== -->
+        <div class="demo" id="midknight-demo">
+            <div class="demo-bar">
+                <span class="demo-title">Replay: the overnight run, 21–22 May 2026</span>
+                <button type="button" class="btn" id="replay">Replay run</button>
+            </div>
+
+            <div class="demo-body">
+                <div class="run-grid">
+                    <ol class="timeline-log" aria-live="polite"></ol>
+
+                    <div class="scoreboard">
+                        <div class="score-total">
+                            <strong id="score-total">0</strong>
+                            <span>/ 150 public tests</span>
+                        </div>
+                        <div class="bars"></div>
+                        <p class="score-foot">Hidden test set: 30 / 100.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="demo-note">Every event, time and score is taken from the run's own logs in the repository
+               (<code>agents_log/</code> and <code>test_results/</code>).</p>
+        </div>
+
+        <div class="doc">
+            <div class="fact-grid">
+                <div class="fact"><strong>92 / 150</strong><span>public tests passed, written entirely by the agent</span></div>
+                <div class="fact"><strong>3 tiers</strong><span>Qwen3-235B &rarr; Llama 3.3 70B &rarr; local Qwen3.5 9B</span></div>
+                <div class="fact"><strong>~620 lines</strong><span>custom loop instead of a framework, so it could be patched live</span></div>
+            </div>
+
+            <h2>What we learned</h2>
+            <p><strong>Use different model families for fallback.</strong> Qwen and Llama fail in different ways, so
+               the backup covers the primary's blind spots.</p>
+            <p><strong>Commit every iteration.</strong> When iteration 30 introduced an infinite loop, one
+               <code>git checkout</code> restored the 92/150 version.</p>
+            <p><strong>Check the harness before blaming the code.</strong> The overnight 0/150 scores came from file
+               timestamps confusing the test runner, not from the agent's code.</p>
+            <p><strong>Always add timeouts.</strong> A hung test went unnoticed until five Python processes were still
+               running.</p>
+
+            <div class="doc-links">
+                <a href="https://github.com/yc82628/Ai-Agent-" class="btn primary" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code on GitHub</a>
+                <a href="projects.html" class="btn">All projects</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="demos/midknight.js"></script>
+</body>
+</html>

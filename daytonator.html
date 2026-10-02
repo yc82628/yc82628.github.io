@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Daytonator: catching evasive malware in AI-suggested packages with fork-and-bait sandboxes.">
+    <title>Daytonator — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="projects.html" class="back-link">&larr; back to projects</a>
+
+            <h1>Daytonator</h1>
+
+            <div class="doc-meta">
+                <span>Python</span>
+                <span>Daytona sandboxes</span>
+                <span>Featherless LLM</span>
+                <span>FastAPI</span>
+                <span>Hackathon</span>
+            </div>
+
+            <p class="project-pitch">AI coding agents sometimes invent package names that don't exist, and attackers
+               register those names with malware ("slopsquatting"). Daytonator runs a suspicious package in several
+               baited sandboxes at once and catches malware that hides from a normal scan.</p>
+            <p><strong>My role:</strong> a team project. I built the sandbox forking: taking one clean Daytona
+               snapshot and forking it into the separate baited environments that every scan runs in.</p>
+        </div>
+
+        <!-- ===== DEMO: replays a real scan (demos/daytonator.js) ===== -->
+        <div class="demo" id="daytonator-demo">
+            <div class="demo-bar">
+                <span class="demo-title">Replay: scanning evasive_stealer</span>
+                <button type="button" class="btn" id="replay">Replay scan</button>
+            </div>
+
+            <div class="demo-body">
+                <div class="pipeline-steps">
+                    <span>1 · snapshot sandbox</span>
+                    <span class="mine">2 · fork &times;5 with baits <em>my part</em></span>
+                    <span>3 · detonate + strace</span>
+                    <span>4 · compare forks</span>
+                    <span>5 · verdict</span>
+                </div>
+
+                <div class="forks"></div>
+
+                <div class="verdict" hidden>
+                    <div class="verdict-head">
+                        <span class="verdict-label"></span>
+                        <span class="verdict-score"></span>
+                    </div>
+                    <p class="verdict-text"></p>
+                    <ul></ul>
+                    <p class="callout"><strong>Why the forks matter:</strong> a normal sandbox only runs the clean
+                       <em>control</em> environment, sees 0 events, and would call this package safe.</p>
+                </div>
+            </div>
+
+            <p class="demo-note">Replay of a real scan saved in the repository (<code>tests/sample_output_evasive.json</code>).
+               The test package is a safe fixture: it only reads fake planted values and "sends" them to an
+               unroutable documentation address (203.0.113.x).</p>
+        </div>
+
+        <div class="doc">
+            <h2>How it works</h2>
+            <p><strong>Snapshot.</strong> Start one clean Daytona sandbox, so every run begins from an identical state.</p>
+            <p><strong>Fork with baits.</strong> Copy it into several environments, each with one planted bait:
+               nothing (control), an SSH key, AWS credentials, a production-looking host, or a clock jumped forward.</p>
+            <p><strong>Detonate.</strong> Install the package in every fork while <code>strace</code> records file,
+               network and process activity.</p>
+            <p><strong>Compare.</strong> Behaviour that appears in a baited fork but not in the control was provably
+               triggered by that bait, so evasive malware can't hide.</p>
+            <p><strong>Explain.</strong> A language model (Qwen2.5-72B via Featherless) writes the verdict in plain
+               English. If no model is available, a built-in heuristic takes over, so it never fails.</p>
+
+            <h2>What I'd do next</h2>
+            <p>Stronger isolation (microVMs) for genuinely hostile code, more baits, and a mode that sits in front of
+               an agent's <code>pip install</code> and blocks bad packages in real time.</p>
+
+            <div class="doc-links">
+                <a href="https://github.com/yc82628/Daytonator" class="btn primary" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code on GitHub</a>
+                <a href="projects.html" class="btn">All projects</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="demos/daytonator.js"></script>
+</body>
+</html>
