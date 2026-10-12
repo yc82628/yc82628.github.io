@@ -1205,6 +1205,41 @@ a.journal-card:hover .work-open{
 .bar i.full{ background: var(--ok); }
 .score-foot{ margin-top: 14px; font-size: 13px; color: var(--muted); }
 
+/* -- Pong: playable canvas ------------------------------------------------ */
+.pong-canvas{
+    display: block;
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    border-radius: 10px;
+    background: #000;          /* the original turtle window was black in both themes */
+    touch-action: none;        /* dragging on the game moves the paddle, not the page */
+    cursor: grab;
+}
+.pong-controls{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+.keys{
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13.5px;
+    color: var(--muted);
+}
+kbd{
+    font: 500 12px var(--mono);
+    padding: 1px 7px;
+    border-radius: 5px;
+    border: 1px solid var(--line-strong);
+    border-bottom-width: 2px;
+    color: var(--text);
+}
+
 /* Facts / numbers row under a demo */
 .fact-grid{
     display: grid;

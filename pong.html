@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pong: my first Python project, playable in the browser.">
+    <title>Pong — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="projects.html" class="back-link">&larr; back to projects</a>
+
+            <h1>Pong</h1>
+
+            <div class="doc-meta">
+                <span>Python</span>
+                <span>turtle graphics</span>
+                <span>first project</span>
+            </div>
+
+            <p class="project-pitch">My first ever coding project: the classic two-player Pong, written in Python with
+               the built-in turtle graphics library. It's where I first learned what a game loop, coordinates and
+               collision detection actually are.</p>
+            <p><strong>My role:</strong> a solo project.</p>
+        </div>
+
+        <!-- ===== DEMO: playable browser port (demos/pong.js) ===== -->
+        <div class="demo" id="pong-demo">
+            <div class="demo-bar">
+                <span class="demo-title">Play it: browser port of main.py</span>
+                <span class="pill ok">playable</span>
+            </div>
+
+            <div class="demo-body">
+                <canvas id="pong" class="pong-canvas" width="800" height="600" tabindex="0"
+                        aria-label="Pong game. Player A uses W and S, or drag on the field."></canvas>
+
+                <div class="pong-controls">
+                    <button type="button" class="btn primary" id="pong-start">Start</button>
+                    <button type="button" class="btn" id="pong-cpu" aria-pressed="true">Player B: computer</button>
+                    <button type="button" class="btn" id="pong-reset">Reset</button>
+                </div>
+                <p class="keys">Player A: <kbd>W</kbd> <kbd>S</kbd> &nbsp;·&nbsp; Player B: <kbd>&uarr;</kbd> <kbd>&darr;</kbd>
+                   &nbsp;·&nbsp; On a phone: drag on the field</p>
+            </div>
+
+            <p class="demo-note">Same rules and numbers as my original Python code: field size, paddle positions,
+               ball speed, bounce and scoring lines, and 20-unit paddle moves. The computer opponent, Start/Pause
+               and touch controls were added for this web version.</p>
+        </div>
+
+        <div class="doc">
+            <h2>How it works</h2>
+            <p><strong>Game loop.</strong> Every step moves the ball by <code>dx</code> and <code>dy</code>. Hitting the
+               top or bottom edge flips <code>dy</code>, so the ball bounces.</p>
+            <p><strong>Scoring.</strong> If the ball gets past a paddle, the other player scores and the ball restarts in
+               the middle, heading the other way.</p>
+            <p><strong>Collision.</strong> When the ball reaches a paddle's x position and is within 40 units of its
+               centre, <code>dx</code> flips and it bounces back.</p>
+
+            <h2>What I'd do differently now</h2>
+            <p>Looking back at my first project, a few things stand out:</p>
+            <p><strong>Speed depended on the computer.</strong> The loop ran as fast as the machine allowed, so the ball
+               was faster on a faster laptop. Now I'd tie movement to elapsed time.</p>
+            <p><strong>Paddles could leave the screen.</strong> Nothing stopped them moving past the top or bottom edge.</p>
+            <p><strong>The same serve every time.</strong> The ball always restarts at the same angle, so rallies get
+               predictable. A random serve angle would fix it.</p>
+            <p><strong>Repeated code.</strong> Paddle A and B were built from copied code. Today I'd write one
+               <code>Paddle</code> class and create two of them.</p>
+
+            <!-- Pong-Game is a private repository. Make it public on GitHub, then add:
+                 <a href="https://github.com/yc82628/Pong-Game" class="btn primary" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code on GitHub</a> -->
+            <div class="doc-links">
+                <a href="projects.html" class="btn">All projects</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="demos/pong.js"></script>
+</body>
+</html>
