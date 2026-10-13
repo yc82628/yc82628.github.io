@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tetris: my Pygame project, playable in the browser.">
+    <title>Tetris — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="projects.html" class="back-link">&larr; back to projects</a>
+
+            <h1>Tetris</h1>
+
+            <div class="doc-meta">
+                <span>Python</span>
+                <span>Pygame</span>
+                <span>early project</span>
+            </div>
+
+            <p class="project-pitch">One of my first projects while learning to code: Tetris in Python with Pygame.
+               Falling blocks you can move and rotate, full lines that clear with a little animation, a next-piece
+               preview and a score.</p>
+            <p><strong>My role:</strong> a solo project.</p>
+        </div>
+
+        <!-- ===== DEMO: playable browser port (demos/tetris.js) ===== -->
+        <div class="demo" id="tetris-demo">
+            <div class="demo-bar">
+                <span class="demo-title">Play it: browser port of my Pygame code</span>
+                <span class="pill ok">playable</span>
+            </div>
+
+            <div class="demo-body">
+                <canvas id="tetris" class="tetris-canvas" width="510" height="600" tabindex="0"
+                        aria-label="Tetris game. Arrow keys move and rotate the falling piece."></canvas>
+
+                <div class="tetris-pad" aria-label="Touch controls">
+                    <button type="button" class="btn" data-key="ArrowLeft" aria-label="Move left">&larr;</button>
+                    <button type="button" class="btn" data-key="ArrowUp" aria-label="Rotate">&#x21bb;</button>
+                    <button type="button" class="btn" data-key="ArrowRight" aria-label="Move right">&rarr;</button>
+                    <button type="button" class="btn" data-key="ArrowDown" aria-label="Drop faster">&darr;</button>
+                </div>
+
+                <div class="pong-controls">
+                    <button type="button" class="btn primary" id="tetris-start">Start</button>
+                    <button type="button" class="btn" id="tetris-reset">Reset</button>
+                </div>
+                <p class="keys"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> move &nbsp;·&nbsp; <kbd>&uarr;</kbd> rotate
+                   &nbsp;·&nbsp; <kbd>&darr;</kbd> drop faster</p>
+            </div>
+
+            <p class="demo-note">Same rules and numbers as my Python code: field size, fall speed (300 ms, or 15 ms
+               while dropping), rotation, scoring and the floating line-clear effect. The blocks are drawn in code
+               using my sprites' colours, and the title uses a free font, because the original font may not be
+               redistributed.</p>
+        </div>
+
+        <div class="doc">
+            <h2>How it works</h2>
+            <p><strong>The board is a grid.</strong> A 10 &times; 20 list of lists remembers which cells are filled.
+               A move is only allowed if every block of the piece would land inside the walls on an empty cell.</p>
+            <p><strong>Rotation.</strong> Every block is turned 90&deg; around the piece's first block. If that
+               would hit something, the rotation is simply skipped.</p>
+            <p><strong>Clearing lines.</strong> Going up from the bottom, each row is copied down; a full row is
+               skipped instead, so everything above it drops. More lines at once score much more: 100, 300, 700 or
+               1500 points.</p>
+
+            <h2>Two versions</h2>
+            <p>The <a href="https://github.com/yc82628/Tetris/tree/main/early-version" target="_blank" rel="noopener noreferrer">first
+               version</a> (May 2025) was the whole game in one file. The current one, played above, is split into
+               modules for settings, pieces, the board and the main loop, which made it much easier to add the
+               next-piece preview, sprites and effects.</p>
+
+            <h2>What I'd do differently now</h2>
+            <p><strong>A hidden bug.</strong> If a tall piece lands while part of it is still above the board, its
+               row number is <code>-1</code>, and in Python <code>list[-1]</code> means the <em>last</em> row, so a
+               block silently appears at the bottom. The browser version treats that as game over instead.</p>
+            <p><strong>No wall kicks.</strong> Rotating next to a wall just fails, and the square piece wobbles when
+               rotated because it turns around a corner block.</p>
+            <p><strong>It never gets harder.</strong> The speed stays at 300 ms per row, and game over restarts
+               instantly without showing your score.</p>
+
+            <div class="doc-links">
+                <a href="https://github.com/yc82628/Tetris" class="btn primary" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code on GitHub</a>
+                <a href="projects.html" class="btn">All projects</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="demos/tetris.js"></script>
+</body>
+</html>

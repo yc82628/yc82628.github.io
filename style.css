@@ -1240,6 +1240,30 @@ kbd{
     color: var(--text);
 }
 
+/* -- Tetris: playable canvas + touch pad ---------------------------------- */
+.tetris-canvas{
+    display: block;
+    width: 100%;
+    max-width: 510px;
+    aspect-ratio: 510 / 600;
+    margin: 0 auto;
+    border-radius: 10px;
+    background: rgb(24, 89, 117);   /* the original window colour, in both themes */
+    touch-action: none;
+}
+.tetris-pad{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+.tetris-pad .btn{
+    min-width: 56px;
+    font-size: 20px;
+    padding: 6px 0;
+    touch-action: manipulation;    /* no double-tap zoom while playing */
+}
+
 /* Facts / numbers row under a demo */
 .fact-grid{
     display: grid;
