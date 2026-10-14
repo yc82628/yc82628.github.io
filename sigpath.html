@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SigPath: a live price-comparison and scam-check site with on-chain escrow on Solana.">
+    <title>SigPath — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="projects.html" class="back-link">&larr; back to projects</a>
+
+            <h1>SigPath</h1>
+
+            <div class="doc-meta">
+                <span>TypeScript</span>
+                <span>Next.js</span>
+                <span>Solana · Anchor (Rust)</span>
+                <span>Live</span>
+                <span>Hackathon</span>
+            </div>
+
+            <p class="project-pitch">"Deal Go &ndash; Scam Towed." SigPath searches live marketplace listings at once,
+               shows the best price with shipping included, and checks every listing for scam signs before you buy.
+               Pay through SigPath and your money waits in an on-chain escrow until the order ships, or comes back to
+               you automatically.</p>
+            <!-- TODO: confirm. All 135 commits in the repository are yours, so this says "solo". -->
+            <p><strong>My role:</strong> a solo project, built for the Solana &times; Superteam Germany hackathon.</p>
+        </div>
+
+        <!-- ===== DEMO: the real, live app ===== -->
+        <div class="demo" id="sigpath-demo">
+            <div class="demo-bar">
+                <span class="demo-title">It's live: try the real thing</span>
+                <span class="pill ok">live on Vercel + Solana devnet</span>
+            </div>
+
+            <div class="demo-body">
+                <a href="https://sigpath.vercel.app" class="shot" target="_blank" rel="noopener noreferrer">
+                    <img src="demos/img/sigpath-home.jpg" width="1600" height="764" loading="lazy"
+                         alt="SigPath home page: the slogan Deal Go – Scam Towed, a product search box, marketplace logos and a live Solana record of orders paid out and refunded">
+                </a>
+
+                <div class="try-row">
+                    <a href="https://sigpath.vercel.app" class="btn primary" target="_blank" rel="noopener noreferrer">Open SigPath &rarr;</a>
+                    <a href="https://sigpath.vercel.app/search?q=AirPods%20Pro" class="btn" target="_blank" rel="noopener noreferrer">Try a search: AirPods Pro</a>
+                    <a href="https://sigpath.vercel.app/proof" class="btn" target="_blank" rel="noopener noreferrer">See the on-chain proof</a>
+                </div>
+            </div>
+
+            <p class="demo-note">Searches pull real listings from eBay Germany through the official eBay Browse API.
+               Payments run on Solana <strong>devnet</strong>, the test network, so no real money is involved.</p>
+        </div>
+
+        <div class="doc">
+            <h2>Every listing gets one verdict</h2>
+            <div class="fact-grid">
+                <div class="fact"><strong>Price</strong><span>Is it plausible for its condition, compared with identical live listings?</span></div>
+                <div class="fact"><strong>Photo</strong><span>Is the same picture used by other sellers?</span></div>
+                <div class="fact"><strong>Account</strong><span>Is the seller's account brand new?</span></div>
+                <div class="fact"><strong>Reports</strong><span>Has a verified buyer reported this seller for fakes?</span></div>
+            </div>
+            <p>The result is <strong>SigPath-checked</strong>, <strong>Look closer</strong> (with the reason), or
+               <strong>Not price-checked</strong> when there is nothing to compare against. The page says plainly that
+               "checked" means checked, not guaranteed.</p>
+
+            <h2>Why it needs a blockchain</h2>
+            <p><strong>Escrow instead of trust.</strong> You pay in USDC into an escrow program on Solana. The seller is
+               only paid once the order is fulfilled; if it isn't, anyone can trigger the refund, and the money can only
+               go back to the buyer.</p>
+            <p><strong>Reports only from real buyers.</strong> Only the wallet that paid for an order can report it,
+               with a live photo of what arrived, and the seller gets 7 days to reply before a report can be upheld.</p>
+            <p><strong>Penalties that follow the seller.</strong> An upheld finding is published to the Solana
+               Attestation Service under the seller's marketplace handle, so anyone can check it without trusting
+               SigPath's own database. Verified sellers earn a badge token that can't be transferred or sold, and an
+               upheld report burns it.</p>
+
+            <h2>Built with</h2>
+            <p>Next.js 14, React and TypeScript on Vercel; two Anchor programs in Rust on Solana; the Solana Attestation
+               Service; the eBay Browse API; Google Gemini for <strong>Ai-chan</strong>, the shopping assistant; plus a
+               browser extension, price-drop alerts and a German / English interface.</p>
+
+            <div class="doc-links">
+                <a href="https://sigpath.vercel.app" class="btn primary" target="_blank" rel="noopener noreferrer">Open SigPath</a>
+                <a href="https://github.com/yc82628/sigpath" class="btn" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code on GitHub</a>
+                <a href="https://explorer.solana.com/address/3gWtrK2mxrW5udZuYxQaeAKwTFx2VbD8WfShBMpgHBwW?cluster=devnet" class="btn" target="_blank" rel="noopener noreferrer">Escrow program on Solana Explorer</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
