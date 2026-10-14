@@ -367,6 +367,37 @@ section{
 }
 .featured .work-grid{ margin-bottom: 44px; }
 
+/* Spotlight: one wide featured card (SigPath) above the row of three */
+.work-card.spotlight{
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    align-items: center;
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto 22px;
+    padding: 18px;
+}
+.spotlight img{
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+}
+.spotlight-text{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-right: 10px;
+}
+.spotlight-text .pill{ margin-bottom: 12px; }
+.spotlight .spotlight-text h3{ font-size: 28px; }   /* more specific than .work-card h3 */
+.spotlight .spotlight-text p{ flex-grow: 0; }
+@media (max-width: 900px){
+    .work-card.spotlight{ grid-template-columns: 1fr; gap: 18px; }
+    .spotlight-text{ padding: 0 6px 6px; }
+}
+
 /* Services: 2 x 2 grid. Not clickable, so they only glow on hover (no zoom). */
 .services-container{
     display: grid;
