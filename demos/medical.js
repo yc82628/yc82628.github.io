@@ -2,11 +2,14 @@
    Medical imaging demo: the safety checks that run BEFORE the model.
    The gate results below are REAL outputs of assess_quality() and
    verify_is_fundus() from preprocessing.py, run on three synthetic images
-   made by make_demo_data.py. The decision rule (operating point 0.35,
-   abstention band 0.22–0.52) is copied from DemoPredictor in predictor.py.
+   made by make_demo_data.py (re-run 2026-10-22, same results). The quality
+   thresholds are QUALITY_THRESHOLDS in preprocessing.py. The decision rule is
+   the one the service serves: operating point 0.667 and abstention band
+   0.286–0.909 (85% coverage), from artifacts/evaluation.json via
+   build_predictor() in predictor.py.
    ========================================================================== */
 
-const THRESHOLDS = { minBlur: 40, minFov: 0.25, minBrightness: 20, maxBrightness: 235 };
+const THRESHOLDS = { minBlur: 12, minFov: 0.25, minBrightness: 20, maxBrightness: 235 };
 
 const CASES = [
     { img: 'demos/img/retina-p0003-right.jpg', name: 'P0003 right', label: 'Grade 0 (no DR)',
@@ -56,7 +59,7 @@ function show(index) {
     gates.innerHTML = `
         <li class="gate">
             <span class="gate-step">01</span>
-            <div><h4>Quality gate</h4><p>Is the photo good enough to grade at all?</p><div class="term">${quality}</div></div>
+            <div><h4>Quality gate</h4><p>Is the photo good enough to grade at all? A learned quality model decides; these classical checks always run as the backstop.</p><div class="term">${quality}</div></div>
             <span class="pill ${c.gradable ? 'ok' : 'bad'}">${c.gradable ? 'gradable' : 'ungradable'}</span>
         </li>
         <li class="gate">
@@ -68,7 +71,7 @@ function show(index) {
             <span class="gate-step">03</span>
             <div><h4>Model → calibrated probability</h4>
             <p>${c.gradable
-                ? 'Only images that pass both gates reach the ordinal model, which outputs a calibrated probability of referable DR. Try the decision rule with the slider below.'
+                ? 'Only images that pass both gates reach the model (EfficientNet-B3, ordinal head), which outputs a probability of referable DR, calibrated for the site. Try the decision rule with the slider below.'
                 : 'Skipped. An ungradable image never reaches the model: it is routed to a human with a recapture request. <strong>Calling a blurred photo "healthy" is the failure that actually harms patients.</strong>'}</p></div>
             ${decision}
         </li>`;
@@ -83,8 +86,8 @@ show(0);
 
 /* ---------- Decision axis: the real rule from predictor.py ---------- */
 
-const OPERATING_POINT = 0.35;
-const BAND = [0.22, 0.52];
+const OPERATING_POINT = 2 / 3;            // 0.667, chosen for sensitivity ≥ 0.90 on the site's calibration half
+const BAND = [0.2857, 0.9091];            // abstention band at 85% coverage
 
 const axis = demo.querySelector('.axis');
 const slider = axis.querySelector('input');
@@ -107,13 +110,13 @@ function decide() {
     let state, label, text;
     if (p > BAND[0] && p < BAND[1]) {
         state = 'warn'; label = 'Manual review';
-        text = `P = ${p.toFixed(2)} falls inside the abstention band (${BAND[0]}–${BAND[1]}). Too close to call, so the system defers to a human grader by design.`;
+        text = `P = ${p.toFixed(2)} falls inside the abstention band (${BAND[0].toFixed(2)}–${BAND[1].toFixed(2)}). Too close to call, so the system defers to a human grader by design.`;
     } else if (p >= OPERATING_POINT) {
         state = 'bad'; label = 'Refer';
-        text = `P = ${p.toFixed(2)} is at or above the operating point (${OPERATING_POINT}). Refer to an ophthalmologist.`;
+        text = `P = ${p.toFixed(2)} is above the abstention band and the operating point (${OPERATING_POINT.toFixed(2)}). Refer to an ophthalmologist.`;
     } else {
         state = 'ok'; label = 'Routine rescreen';
-        text = `P = ${p.toFixed(2)} is confidently below the operating point. Routine rescreening.`;
+        text = `P = ${p.toFixed(2)} is below the abstention band, confidently not referable. Routine rescreening.`;
     }
     pill.className = 'pill ' + state;
     pill.textContent = label;
