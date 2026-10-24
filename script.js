@@ -67,14 +67,22 @@ if (menuBtn && navbar) {
 
 /* 3. TYPING EFFECT ("I'm a ____") ------------------------------------------
    Only runs on pages that have <span id="typed">. To change the roles,
-   edit this list, and the matching sentence in index.html's .sr-only span. */
+   edit this list (each role with its own "a" / "an"), the first role in
+   index.html, and the matching sentence in index.html's .sr-only span. */
 
 const typed = document.querySelector('#typed');
 const article = document.querySelector('#typed-article');
 
 if (typed) {
-    // Matches the four Services boxes on the home page
-    const roles = ['Data Analyst', 'Full Stack Developer', 'Software Tester', 'AI Engineer'];
+    // Matches the CV title: AI / ML Engineer, computer vision, full-stack products.
+    // The article is stored, not guessed: "an ML Engineer" ("em-el") breaks a vowel rule.
+    const ROLES = [
+        ['an', 'AI Engineer'],
+        ['an', 'ML Engineer'],
+        ['a', 'Computer Vision Engineer'],
+        ['a', 'Full-Stack Builder'],
+    ];
+    const roles = ROLES.map(([, role]) => role);
 
     const TYPE_SPEED = 95;      // ms per letter while typing
     const DELETE_SPEED = 45;    // ms per letter while deleting
@@ -101,8 +109,7 @@ if (typed) {
             roleIndex = (roleIndex + 1) % roles.length;
             delay = 350;
 
-            // "a Data Analyst" but "an AI Engineer": use "an" before a vowel
-            if (article) article.textContent = /^[AEIOU]/i.test(roles[roleIndex]) ? 'an' : 'a';
+            if (article) article.textContent = ROLES[roleIndex][0];
         }
 
         setTimeout(tick, delay);
