@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Router Rumble: a co-op party game where your phone is both the controller and a device on the network.">
+    <title>Router Rumble — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="journal.html">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="projects.html" class="back-link">&larr; back to projects</a>
+
+            <h1>Router Rumble</h1>
+
+            <div class="doc-meta">
+                <span>JavaScript</span>
+                <span>Node.js</span>
+                <span>Socket.IO</span>
+                <span>Canvas</span>
+                <span>Live</span>
+                <span>Codex Hackathon</span>
+            </div>
+
+            <p class="project-pitch">"Keep the internet alive together, while the internet tries to kill you." A co-op
+               party game: the big screen shows a Wi-Fi network, and every player's phone is both a controller
+               <em>and</em> a device on that network. Routers overload and crash, and the team has to reroute traffic
+               before network health hits zero.</p>
+            <p><strong>My role:</strong> a team of three at the Codex Hackathon (October 2026). I handled most of the
+               web interface, designed the device icons, and built the game's backend controls.</p>
+        </div>
+
+        <!-- ===== DEMO: the live game + screenshots from a real run ===== -->
+        <div class="demo" id="router-demo">
+            <div class="demo-bar">
+                <span class="demo-title">It's live: gather some friends</span>
+                <span class="pill ok">live on Render</span>
+            </div>
+
+            <div class="demo-body">
+                <a href="https://router-rumble.onrender.com" class="shot" target="_blank" rel="noopener noreferrer">
+                    <img src="demos/img/router-play.jpg" width="1600" height="900" loading="lazy"
+                         alt="Router Rumble big screen during level 2: four access points with traffic flowing up to the internet uplink, devices underneath and three operators">
+                </a>
+
+                <div class="try-row">
+                    <a href="https://router-rumble.onrender.com" class="btn primary" target="_blank" rel="noopener noreferrer">Open the big screen &rarr;</a>
+                    <a href="https://github.com/yc82628/router-rumble" class="btn" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code</a>
+                </div>
+                <p class="keys">Open it on a laptop or TV, then scan the QR code with your phones. Press <kbd>D</kbd> on the
+                   big screen to let bots play if you're on your own.</p>
+            </div>
+
+            <p class="demo-note">Screenshots from a real run with three phones and demo bots. The QR codes in them
+               were covered because they pointed at a local test server. On the free hosting tier the game sleeps when
+               idle, so the first load can take up to a minute.</p>
+        </div>
+
+        <div class="doc">
+            <h2>Your phone is the controller</h2>
+            <div class="phone-row">
+                <img src="demos/img/router-phone-1.jpg" width="390" height="844" loading="lazy"
+                     alt="Phone controller for access point 1: load bar at 63 of 100, Push Left, Push Right, Pull Back, Fix and Switch AP buttons, and a x2 streak">
+                <img src="demos/img/router-phone-2.jpg" width="390" height="844" loading="lazy"
+                     alt="Phone controller for access point 2 with device chips and a pop-up announcing that SEND is unlocked">
+            </div>
+            <p>Each player runs an access point. The phone shows exact load numbers that the big screen doesn't, so the
+               team has to talk. <strong>PUSH</strong> traffic to a neighbour, <strong>BOOST</strong> capacity for
+               5 seconds, <strong>FIX</strong> crashed routers, and from level 2 <strong>SEND</strong> a hungry device
+               to another access point. Every tap gives feedback: points, streaks, and a buzz on real achievements.</p>
+
+            <h2>Four levels, one boss</h2>
+            <div class="gallery">
+                <figure>
+                    <img src="demos/img/router-boss.jpg" width="1600" height="900" loading="lazy"
+                         alt="Level 4: the red OVERSEER robot docked on access point 3, which is straining yellow">
+                    <figcaption>Level 4: the OVERSEER docks onto an access point and drains it. Everyone taps FIX.</figcaption>
+                </figure>
+                <figure>
+                    <img src="demos/img/router-win.jpg" width="1600" height="900" loading="lazy"
+                         alt="Victory screen reading INTERNET SAVED with the score, stars and the MVP">
+                    <figcaption>Beat it three times and the internet is saved, with an MVP and high scores.</figcaption>
+                </figure>
+            </div>
+            <p>Level 1 is a gentle onboarding round with one kind of enemy. Level 2 adds viruses that eat bandwidth and
+               spread, and unlocks moving devices. Level 3 ramps up the speed, and level 4 is the final boss, whose
+               health scales with the number of players.</p>
+
+            <h2>Under the hood</h2>
+            <p><strong>One screen runs the game.</strong> The big screen runs the simulation 10 times a second and draws
+               at 60 fps. The Node.js server only relays messages within each room, so it stays light with many rooms.</p>
+            <p><strong>Built for a crowded room.</strong> Up to 10 players per room and 30 rooms per server. A phone that
+               drops keeps its spot for 15 seconds, and inputs are rate-limited so a spammer can't crash the server.
+               In a load test, 250 simulated players across 25 rooms each kept about 10 updates per second, using
+               around 100 MB of memory.</p>
+            <p><strong>An optional AI commander.</strong> With an OpenAI key, an "incident commander" comments on the game,
+               with a 3-second timeout. Without a key, or on any error, it falls back to written lines, so the game
+               never waits on the AI and runs fully offline.</p>
+
+            <div class="doc-links">
+                <a href="https://router-rumble.onrender.com" class="btn primary" target="_blank" rel="noopener noreferrer">Play Router Rumble</a>
+                <a href="https://github.com/yc82628/router-rumble" class="btn" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>View code on GitHub</a>
+                <a href="projects.html" class="btn">All projects</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
