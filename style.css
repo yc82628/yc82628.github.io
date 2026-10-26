@@ -365,7 +365,10 @@ section{
     background: var(--bg-2);
     transition: background-color .35s ease;
 }
-.featured .work-grid{ margin-bottom: 44px; }
+.featured .work-grid{
+    grid-template-columns: repeat(2, 1fr);   /* 4 featured cards = a 2 x 2 grid under the spotlight */
+    margin-bottom: 44px;
+}
 
 /* Spotlight: one wide featured card (SigPath) above the row of three */
 .work-card.spotlight{
@@ -769,7 +772,7 @@ a.journal-card:hover .work-open{
 /* Tablets */
 @media (max-width: 1100px){
     .work-grid{ grid-template-columns: repeat(2, 1fr); }
-    .featured .work-grid{ grid-template-columns: repeat(3, 1fr); }   /* keep the 3 featured cards in one row */
+    .featured .work-grid{ grid-template-columns: repeat(2, 1fr); }   /* keep the 2 x 2 featured grid on tablets */
 }
 
 /* Phones */
