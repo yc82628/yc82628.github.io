@@ -22,8 +22,8 @@
 (() => {
     /* ---- Settings: the Background Studio link, plus the site's theme colours ---- */
 
-    // Set to false to animate even for visitors whose device asks for reduced motion.
-    const RESPECT_REDUCED_MOTION = true;
+    // false = always animate, even for visitors whose device asks for reduced motion (owner's choice).
+    const RESPECT_REDUCED_MOTION = false;
 
     const STUDIO = {            // from the Background Studio URL
         threadCount: 8, speed: 0.55, spread: 0.35, taper: 2,

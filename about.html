@@ -71,39 +71,123 @@
         </div>
     </section>
 
-    <!-- ===== TIMELINE ===== -->
+    <!-- ===== TIMELINE: what I've done, oldest first =====
+         To add an event: copy one timeline-item block. kind-hackathon / kind-project / kind-work /
+         kind-education / kind-kitchen only change the small label's colour. -->
     <section class="education" id="education">
-        <h2 class="heading">Where I've <span>Been</span></h2>
+        <span class="eyebrow">from the kitchen to hackathons</span>
+        <h2 class="heading">What I've <span>Done</span></h2>
 
         <div class="timeline-items">
-            <div class="timeline-item">
+            <div class="timeline-item kind-kitchen">
                 <div class="timeline-dot"></div>
                 <div class="timeline-date">2020</div>
                 <div class="timeline-content">
+                    <span class="timeline-kind">Kitchen</span>
                     <h3>Chef, T&amp;A</h3>
-                    <p>Two years across high-volume restaurant lines, café prep and retail bakery work:
-                       service under time pressure, consistency, and working a station as part of a team.</p>
+                    <p>Where it started: two years across high-volume restaurant lines, café prep and retail bakery work. Set up before service, stay calm when three things break at once, check every plate before it leaves the pass.</p>
+                    <div class="timeline-badges"><span>Where it started</span></div>
                 </div>
             </div>
 
-            <div class="timeline-item">
+            <div class="timeline-item kind-education">
                 <div class="timeline-dot"></div>
-                <div class="timeline-date">2023 – 26</div>
+                <div class="timeline-date">Oct 2023</div>
                 <div class="timeline-content">
-                    <h3>BSc (Hons) Computer Science, BSBI Berlin</h3>
-                    <p>Core software engineering, algorithms and database systems, with a focus on AI/LLM
-                       integration, 3NF database design and automated forecasting pipelines.</p>
+                    <span class="timeline-kind">Education</span>
+                    <h3>Started BSc (Hons) Computer Science, BSBI Berlin</h3>
+                    <p>From the kitchen to the keyboard: software engineering, algorithms and databases.</p>
                 </div>
             </div>
 
-            <!-- TODO: fill in, or delete this block if it hasn't started yet -->
-            <div class="timeline-item">
+            <div class="timeline-item kind-work">
                 <div class="timeline-dot"></div>
-                <div class="timeline-date">2026</div>
+                <div class="timeline-date">Mar – Nov 2025</div>
                 <div class="timeline-content">
-                    <h3>Working Student, Mmaah</h3>
-                    <p>What you worked on, what you used, and one thing you shipped.</p>
+                    <span class="timeline-kind">Work</span>
+                    <h3>Working Student, Mmaah Korean Restaurant</h3>
+                    <p>Introduced a delivery checklist system that cut order discrepancies by 15%, and kept inventory records across 50+ product categories in a high-volume service.</p>
+                    <div class="timeline-badges"><span>−15% order errors</span></div>
                 </div>
+            </div>
+
+            <div class="timeline-item kind-hackathon">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">21 – 22 May 2026</div>
+                <div class="timeline-content">
+                    <span class="timeline-kind">Hackathon</span>
+                    <h3>42 Berlin × Needle Hackathon</h3>
+                    <p>Midknight Watcher, an autonomous coding agent, in a team of two. I ran its overnight run and the morning recovery: traced a 0/150 score to a test-harness bug and restored the 92/150 build.</p>
+                    <div class="timeline-badges"><span>92 / 150 tests</span></div>
+                    <a href="midknight-watcher.html" class="timeline-link">See the project</a>
+                </div>
+            </div>
+
+            <div class="timeline-item kind-hackathon">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">Jun 2026</div>
+                <div class="timeline-content">
+                    <span class="timeline-kind">Hackathon</span>
+                    <h3>Daytona AI Builder Hackathon</h3>
+                    <p>Daytonator, a detector for malware hiding behind package names that AI coding agents make up. I built the sandbox forking that makes evasive malware show itself.</p>
+                    <div class="timeline-badges"><span>Top 10</span></div>
+                    <a href="daytonator.html" class="timeline-link">See the project</a>
+                </div>
+            </div>
+
+            <div class="timeline-item kind-hackathon">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">Sep – Oct 2026</div>
+                <div class="timeline-content">
+                    <span class="timeline-kind">Hackathon</span>
+                    <h3>Solana × Superteam Germany Hackathon</h3>
+                    <p>SigPath, built solo: a live site that compares real eBay prices, checks every listing for scam signs and holds payment in an on-chain escrow until the order ships.</p>
+                    <div class="timeline-badges"><span>Solo</span><span>Live</span></div>
+                    <a href="sigpath.html" class="timeline-link">See the project</a>
+                </div>
+            </div>
+
+            <div class="timeline-item kind-education">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">Oct 2026</div>
+                <div class="timeline-content">
+                    <span class="timeline-kind">Education</span>
+                    <h3>Graduated BSc (Hons) Computer Science, BSBI Berlin</h3>
+                    <p>Specialised in practical AI/LLM integration and applied machine learning.</p>
+                    <div class="timeline-badges"><span>Graduated</span></div>
+                </div>
+            </div>
+
+            <div class="timeline-item kind-project">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">Oct 2026</div>
+                <div class="timeline-content">
+                    <span class="timeline-kind">Project</span>
+                    <h3>Medical Imaging, externally validated</h3>
+                    <p>My solo diabetic retinopathy screening model, tested on a different hospital's images: AUROC 0.938, with 88% of referable eyes caught.</p>
+                    <div class="timeline-badges"><span>AUROC 0.938</span></div>
+                    <a href="medical-imaging.html" class="timeline-link">See the project</a>
+                </div>
+            </div>
+
+            <div class="timeline-item kind-hackathon">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">24 Oct 2026</div>
+                <div class="timeline-content">
+                    <span class="timeline-kind">Hackathon</span>
+                    <h3>Codex Hackathon</h3>
+                    <p>Router Rumble, a live co-op party game where phones are the controllers, in a team of three. I handled most of the web interface, designed the device icons and built the backend controls.</p>
+                    <div class="timeline-badges"><span>Team of 3</span><span>Live</span></div>
+                    <a href="router-rumble.html" class="timeline-link">See the project</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="follow">
+            <p>I post about hackathons and what I'm building. Follow along:</p>
+            <div class="doc-links center">
+                <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" class="btn" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin-in"></i>LinkedIn</a>
+                <a href="https://x.com/YC82628" class="btn" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i>X</a>
             </div>
         </div>
     </section>

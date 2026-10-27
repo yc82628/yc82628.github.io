@@ -1428,3 +1428,42 @@ kbd{
 .intro-text{
     text-shadow: 0 0 4px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);
 }
+
+/* Timeline extras (About page): event label, result badges, project link, follow buttons */
+.timeline-kind{
+    display: inline-block;
+    font: 500 11.5px var(--mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.kind-hackathon .timeline-kind{ color: var(--accent-ink); }
+.kind-project .timeline-kind{ color: var(--ok); }
+.timeline-badges{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+}
+.timeline-badges span{
+    font: 500 12px var(--mono);
+    color: var(--accent-ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 2px 10px;
+}
+.timeline-link{
+    display: inline-block;
+    margin-top: 12px;
+    font: 500 13.5px var(--mono);
+    color: var(--accent-ink);
+}
+.timeline-link::after{ content: " \2192"; }
+.timeline-link:hover{ text-decoration: underline; }
+.follow{
+    max-width: 640px;
+    margin: 56px auto 0;
+    text-align: center;
+    color: var(--muted);
+}
