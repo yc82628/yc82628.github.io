@@ -1,7 +1,11 @@
 /* ==========================================================================
-   Animated "Web Threads" background, behind every page.
+   Animated "Antigravity" background behind every page: the Magnet preset in
+   light mode, Orbit in dark mode.
+   A field of particles gathers into a glowing ring around the cursor; when the
+   mouse is still, the ring drifts across the page on its own. Hold the mouse
+   button on empty space to charge it, release to burst.
 
-   Ported to plain JavaScript (no React) from the WebThreads component of
+   Ported to plain JavaScript (no React) from the Antigravity component of
    React Bits: https://reactbits.dev, https://github.com/DavidHDev/react-bits
 
    MIT + Commons Clause License Condition v1.0
@@ -20,303 +24,246 @@
    ========================================================================== */
 
 (() => {
-    /* ---- Settings: the Background Studio link, plus the site's theme colours ---- */
+    /* ---- Settings: the Background Studio link, plus the site's theme ---- */
 
     // false = always animate, even for visitors whose device asks for reduced motion (owner's choice).
     const RESPECT_REDUCED_MOTION = false;
 
-    const STUDIO = {            // from the Background Studio URL
-        threadCount: 8, speed: 0.55, spread: 0.35, taper: 2,
-        position: 0.54, angle: 45, glow: 0.009, falloff: 0.61,
-    };
+    // One Background Studio preset per theme: day (light) = "magnet", night (dark) = "orbit"
     const THEMES = {
-        dark:  { colors: ['#00ffee', '#0a84ff'], coreColor: '#e9fffd', lightMode: false, opacity: 0.85 },
-        light: { colors: ['#4338ca', '#7b6cff'], coreColor: '#ffffff', lightMode: true,  opacity: 0.55 },
+        dark: {                 // orbit: icy blues, the ring slowly spins
+            colors: ['#7dd3fc', '#e0f2fe', '#38bdf8'],
+            rotationSpeed: 1.2, fieldStrength: 25, waveAmplitude: 0.6,
+            lightMode: false, opacity: 1,
+        },
+        light: {                // magnet: violet and pink (the component's own look)
+            colors: ['#5227FF', '#FF9FFC', '#B497CF'],
+            lightMode: true, opacity: 0.85,
+        },
     };
     const DEFAULTS = {          // the component's own defaults for everything else
-        frequency: 5, pinch: 0.5, nodes: 1, thickness: 1.1, brightness: 0.6, depth: 0,
-        pulses: 0, mirror: true, shimmer: false, fade: 0, grain: 0.05, intro: true,
-        mouseInteraction: true, mouseStrength: 0.5, pulseOnClick: true, paused: false,
-        backgroundColor: 'transparent',
-        dpr: window.innerWidth < 700 ? 1 : 1.25,   // lower than the default 2: a full-screen shader is costly
+        count: 1500, magnetRadius: 9, colorSpeed: 0.05,
+        ringRadius: 7, waveSpeed: 0.4, waveAmplitude: 1, waveCount: 3, particleSize: 0.9,
+        lerpSpeed: 0.05, colorMode: 'conic', autoAnimate: true, particleVariance: 1,
+        rotationSpeed: 0, depthFactor: 1, pulseSpeed: 3, particleShape: 'capsule',
+        fieldStrength: 10, ambient: 0.25, interactive: true, clickBurst: true, intro: true,
+        maxDevicePixelRatio: 2,
     };
+
+    // Phones get fewer particles (a narrow screen packs them tighter) and a dimmer layer under the text
+    const SMALL_SCREEN = '(max-width: 700px)';
+    const SMALL_SCREEN_COUNT = 1000;
+    const SMALL_SCREEN_OPACITY = 0.6;
 
     /* ---- Constants and shaders (unchanged from the original component) ---- */
 
-    const MAX_THREADS = 24;
-    const MAX_COLORS = 6;
-    const MAX_SURGES = 3;
-    const SURGE_SECONDS = 1.6;
-    const SURGE_STAGGER = 0.05;
-    const STROKE_SECONDS = 1.25;
-    const TAU = Math.PI * 2;
+    const PIXEL_BUDGET = 2.4e6;
+    const WORLD_HEIGHT = 31.5;
+    const PALETTE_SIZE = 256;
+    const SHAPES = { capsule: 0, sphere: 1, box: 2, tetrahedron: 3 };
+    const COLOR_MODES = { conic: 0, radial: 1, random: 2 };
 
     const VERTEX = `#version 300 es
-in vec2 aPosition;
+precision highp float;
+layout(location = 0) in vec2 aCorner;
+layout(location = 1) in vec4 aParticle;
+layout(location = 2) in vec4 aSeed;
+uniform vec2 uSize;
+uniform float uPixel;
+uniform vec2 uCursor;
+uniform float uRing;
+uniform float uBand;
+uniform float uParticle;
+uniform float uAmbient;
+uniform float uTime;
+uniform float uPulse;
+uniform float uVariance;
+uniform float uDepth;
+uniform float uShape;
+uniform float uColorMode;
+uniform float uStops;
+uniform float uHue;
+uniform float uReveal;
+uniform float uStreak;
+uniform float uCharge;
+out vec2 vLocal;
+out vec2 vBounds;
+out float vU;
+out float vAlpha;
+out float vSoft;
+
 void main() {
-  gl_Position = vec4(aPosition, 0.0, 1.0);
+  vec2 rel = aParticle.xy - uCursor;
+  float dist = length(rel);
+  vec2 radial = dist > 1e-3 ? rel / dist : vec2(1.0, 0.0);
+  vec2 dir = radial;
+  float speed = length(aParticle.zw);
+  float streak = clamp(speed / uStreak, 0.0, 2.5);
+  if (speed > 1e-3) {
+    vec2 heading = aParticle.zw / speed * sign(dot(aParticle.zw, radial) + 1e-4);
+    dir = normalize(mix(radial, heading, smoothstep(0.0, 1.0, streak)));
+  }
+  float ring = exp(-pow((dist - uRing) / uBand, 2.0));
+  float z = aSeed.x;
+  float depth = 1.0 + z * 0.32 * uDepth;
+  float pulse = 1.0 + sin(uTime * uPulse + aSeed.y) * 0.22 * uVariance;
+  float grow = uAmbient + (1.0 - uAmbient) * ring;
+  float size = uParticle * depth * pulse * (0.85 + 0.3 * aSeed.w) * (1.0 + uCharge * 0.25 * ring);
+  vec2 bounds;
+  if (uShape < 0.5) {
+    float width = size * 0.17 * mix(0.55, 1.0, ring);
+    bounds = vec2(max(width, size * 0.5 * grow) * (1.0 + streak * 1.2), width);
+  } else if (uShape < 1.5) {
+    bounds = vec2(size * 0.22 * mix(0.45, 1.0, grow));
+  } else {
+    bounds = vec2(size * 0.26 * mix(0.45, 1.0, grow));
+  }
+  float soft = 1.0 + max(-z, 0.0) * 1.6 * uDepth;
+  vec2 local = aCorner * (bounds + soft * 1.5 / uPixel);
+  vec2 world = aParticle.xy + dir * local.x + vec2(-dir.y, dir.x) * local.y;
+  gl_Position = vec4(world.x / uSize.x * 2.0 - 1.0, 1.0 - world.y / uSize.y * 2.0, 0.0, 1.0);
+  vLocal = local * uPixel;
+  vBounds = bounds * uPixel;
+  vSoft = soft;
+  if (uColorMode < 0.5) {
+    vU = atan(radial.y, radial.x) / 6.28318530718 + uHue + (aSeed.z - 0.5) * 0.06;
+  } else if (uColorMode < 1.5) {
+    vU = clamp(dist / (uRing * 2.4), 0.0, 1.0) + (aSeed.z - 0.5) * 0.06;
+  } else {
+    vU = floor(aSeed.z * uStops) / max(uStops - 1.0, 1.0);
+  }
+  float fog = 1.0 - max(-z, 0.0) * 0.35 * uDepth;
+  vAlpha = mix(uAmbient, 1.0, ring) * fog * uReveal;
 }`;
 
     const FRAGMENT = `#version 300 es
 precision highp float;
-uniform vec2 uResolution;
-uniform float uPhase;
-uniform float uClock;
-uniform int uCount;
-uniform float uFrequency;
-uniform float uSpread;
-uniform float uTaper;
-uniform float uPosition;
-uniform float uPinch;
-uniform float uNodes;
-uniform vec2 uAngle;
-uniform float uGlow;
-uniform float uFalloff;
-uniform float uThickness;
-uniform float uBrightness;
+uniform sampler2D uPalette;
+uniform float uShape;
+uniform float uColorMode;
 uniform float uOpacity;
-uniform float uMirror;
-uniform float uShimmer;
-uniform float uDepth;
-uniform float uPulses;
-uniform float uFade;
-uniform float uGrain;
-uniform vec3 uColors[${MAX_COLORS}];
-uniform int uColorCount;
-uniform vec3 uCore;
-uniform vec3 uBackground;
-uniform float uOpaque;
-uniform float uLight;
-uniform vec4 uIntro;
-uniform float uFocus[${MAX_THREADS}];
-uniform vec2 uFocusState;
-uniform vec4 uSurges[${MAX_SURGES}];
-out vec4 outColor;
-
-const float PI = 3.14159265;
-const float TAU = 6.28318530;
-
-float hash(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 45.32);
-  return fract(p.x * p.y);
-}
-
-float easeInOut(float t) {
-  return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) * 0.5;
-}
-
-vec3 palette(float t) {
-  if (uColorCount <= 1) return uColors[0];
-  float scaled = clamp(t, 0.0, 1.0) * float(uColorCount - 1);
-  int index = int(min(floor(scaled), float(uColorCount - 2)));
-  return mix(uColors[index], uColors[index + 1], scaled - float(index));
-}
-
-vec2 envelope(float x) {
-  float dx = x - uPinch;
-  if (uNodes <= 1.0) return vec2(uSpread * abs(dx), uSpread * sign(dx));
-  float k = PI * uNodes;
-  float c = cos(k * (dx + 0.5));
-  return vec2(uSpread * 0.5 * abs(c), -uSpread * 0.5 * k * sin(k * (dx + 0.5)) * sign(c));
-}
-
-vec2 space(vec2 p, float aspect) {
-  vec2 q = (p - 0.5) * vec2(aspect, 1.0);
-  q = vec2(q.x * uAngle.x + q.y * uAngle.y, -q.x * uAngle.y + q.y * uAngle.x);
-  return vec2(q.x / aspect + 0.5, q.y + 0.5);
-}
-
-float hubAt(float x) {
-  if (uNodes <= 1.0) return uPinch;
-  float spacing = 1.0 / uNodes;
-  return uPinch - 0.5 + (floor((x - uPinch + 0.5) / spacing) + 0.5) * spacing;
-}
-
-vec3 thread(float x, float i, float n) {
-  float lane = uNodes <= 1.0 ? x - uPinch : (x - uPinch + 0.5) * uNodes - 0.5;
-  float side = uMirror > 0.5 ? (mod(floor(lane), 2.0) < 0.5 ? -1.0 : 1.0) : 1.0;
-  vec2 env = envelope(x);
-  float amp = 1.0 + i * uTaper;
-  float shimmer = uShimmer > 0.5 ? sin(uClock * 1.7 + i * 1.3) * 0.35 : 0.0;
-  float angle = x * uFrequency + (uPhase + i * TAU / max(n, 1.0)) * side + shimmer;
-  float wave = sin(angle);
-  float y = uPosition - env.x * amp * wave;
-  float slope = -(env.y * amp * wave + env.x * amp * cos(angle) * uFrequency);
-  return vec3(y, slope, angle);
-}
+in vec2 vLocal;
+in vec2 vBounds;
+in float vU;
+in float vAlpha;
+in float vSoft;
+out vec4 fragColor;
 
 void main() {
-  vec2 p = gl_FragCoord.xy / uResolution;
-  float aspect = uResolution.x / uResolution.y;
-  vec2 s = space(p, aspect);
-  float x = s.x;
-  float y = s.y;
-  float n = float(uCount);
-  float pixel = 1.0 / uResolution.y;
-  float hub = hubAt(x);
-  float presence = uFocusState.x;
-  float settle = uFocusState.y;
-
-  vec3 color = vec3(0.0);
-  float energy = 0.0;
-  float ink = 0.0;
-  vec3 inkColor = vec3(0.0);
-
-  for (int idx = 0; idx < ${MAX_THREADS}; idx++) {
-    if (idx >= uCount) break;
-    float i = float(idx);
-    float ci = n > 1.0 ? i / (n - 1.0) : 0.0;
-
-    float head = 2.0;
-    float bead = 0.0;
-    float born = 1.0;
-    if (uIntro.w > 0.5) {
-      float progress = clamp((uIntro.x - i * uIntro.y) / uIntro.z, 0.0, 1.0);
-      head = mix(-0.06, 1.06, easeInOut(progress));
-      bead = sin(PI * progress);
-      born = progress > 0.0 ? smoothstep(-0.05, 0.03, head) : 0.0;
-    }
-    if (born <= 0.0) continue;
-
-    bool tip = x > head;
-    vec3 lead = bead > 0.0 || tip ? thread(head, i, n) : vec3(0.0);
-    vec3 t = tip ? lead : thread(x, i, n);
-
-    float focus = uFocus[idx];
-    float spot = tip ? head : x;
-    float twist = uDepth * smoothstep(0.0, 0.07, abs(spot - hubAt(spot)));
-    float depth = 0.5 + 0.5 * cos(t.z);
-    float front = mix(1.0, 0.3 + 0.7 * depth, twist);
-    float width = uThickness * mix(1.0, 0.55 + 0.7 * depth, twist) * (1.0 + 0.3 * focus * presence);
-
-    float d;
-    if (tip) {
-      float back = head - 0.02;
-      vec2 a = vec2(back * aspect, thread(back, i, n).x);
-      vec2 b = vec2(head * aspect, lead.x);
-      vec2 pa = vec2(x * aspect, y) - a;
-      vec2 ba = b - a;
-      d = length(pa - ba * clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0.0, 1.0));
-    } else {
-      float bend = t.y * smoothstep(0.0, 0.04, abs(x - hub));
-      d = abs(y - t.x) / sqrt(1.0 + bend * bend / (aspect * aspect));
-    }
-    float g = uGlow / pow(max(d / width, pixel * 0.35), uFalloff) * front * born;
-    float onLine = exp(-d / (width * 0.012));
-
-    if (bead > 0.0) {
-      vec2 near = vec2((x - head) * aspect, y - lead.x);
-      g *= 1.0 + bead * 1.6 * exp(-dot(near, near) / 0.0025);
-    }
-
-    float light = 0.0;
-    for (int k = 0; k < ${MAX_SURGES}; k++) {
-      vec4 surge = uSurges[k];
-      if (surge.w <= 0.0) continue;
-      float progress = clamp((surge.y - i * ${SURGE_STAGGER.toFixed(3)}) / ${SURGE_SECONDS.toFixed(2)}, 0.0, 1.0);
-      if (progress <= 0.0 || progress >= 1.0) continue;
-      float lead = mix(surge.x, surge.z > 0.0 ? 1.12 : -0.12, easeInOut(progress));
-      float along = (x - lead) * surge.z * aspect;
-      float trail = along < 0.0 ? exp(along / 0.24) : exp(-along * along / 0.0009);
-      light += trail * sin(PI * progress);
-    }
-    g *= 1.0 + light * (0.12 + 2.8 * onLine);
-
-    if (uPulses > 0.0) {
-      float travel = abs(x - hub);
-      float pulse = pow(0.5 + 0.5 * sin(travel * 16.0 + uClock * 2.2 + i * 1.9), 24.0);
-      g *= 1.0 + uPulses * 5.0 * pulse * onLine;
-    }
-
-    float sheen = pow(0.5 + 0.5 * sin(abs(x - hub) * 11.0 + uClock * 1.4), 10.0);
-    float lift = focus * presence;
-    g *= (1.0 - settle * (1.0 - focus)) * (1.0 + lift * (0.9 + 1.4 * sheen * onLine));
-
-    vec3 tint = mix(palette(ci), uCore, 0.3 * lift);
-    color += g * tint;
-    energy += g;
-    float stroke = smoothstep(0.45, 1.3, g);
-    inkColor += tint * stroke;
-    ink += stroke;
-  }
-
-  float fade = 1.0;
-  if (uFade > 0.0) {
-    float edge = min(x, 1.0 - x);
-    float f = clamp(edge / max(uFade * 0.5, 0.001), 0.0, 1.0);
-    fade = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
-  }
-  float core = smoothstep(0.5, 2.2, energy);
-  color = mix(color, uCore * energy, core * 0.5);
-  color *= uBrightness * fade;
-  float alpha = clamp(energy * fade, 0.0, 1.0) * uOpacity;
-  float grain = (hash(gl_FragCoord.xy + fract(uClock) * 97.0) - 0.5) * uGrain;
-
-  if (uLight < 0.5) {
-    vec3 rgb = max(color * alpha * (1.0 + grain * 2.0), 0.0);
-    if (uOpaque > 0.5) {
-      outColor = vec4(min(uBackground * (1.0 - alpha) + rgb, 1.0), 1.0);
-    } else {
-      outColor = vec4(rgb, alpha);
-    }
+  vec2 p = vLocal;
+  float d;
+  if (uShape < 0.5) {
+    float r = vBounds.y;
+    d = length(vec2(max(abs(p.x) - max(vBounds.x - r, 0.0), 0.0), p.y)) - r;
+  } else if (uShape < 1.5) {
+    d = length(p) - vBounds.x;
+  } else if (uShape < 2.5) {
+    float r = vBounds.x * 0.28;
+    vec2 q = abs(p) - (vBounds - r);
+    d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
   } else {
-    ink *= fade;
-    vec3 hue = ink > 0.0001 ? inkColor / ink : palette(0.5);
-    float body = clamp(ink, 0.0, 1.0);
-    float haze = clamp(1.0 - exp(-energy * fade * 0.3), 0.0, 1.0) * 0.12;
-    float focal = smoothstep(2.0, 9.0, energy * fade) * 0.25;
-    float cover = clamp((body * 0.9 + (haze + focal) * (1.0 - body)) * (1.0 + grain * 2.0), 0.0, 0.95) * uOpacity;
-    vec3 stroke = hue;
-    if (uOpaque > 0.5) {
-      outColor = vec4(mix(uBackground, stroke, cover), 1.0);
-    } else {
-      outColor = vec4(stroke * cover, cover);
-    }
+    float r = vBounds.x * 1.15;
+    vec2 q = vec2(r * 0.5774 - p.x, abs(p.y));
+    d = max(dot(q, vec2(0.5, 0.8660254)) - r * 0.5, -q.x - r * 0.5) * 1.2;
   }
+  float alpha = clamp(0.5 - d / vSoft, 0.0, 1.0) * vAlpha * uOpacity;
+  if (alpha < 0.002) discard;
+  vec3 color = texture(uPalette, vec2(uColorMode < 0.5 ? fract(vU) : vU, uColorMode < 0.5 ? 0.25 : 0.75)).rgb;
+  fragColor = vec4(color * alpha, alpha);
 }`;
 
     /* ---- Helpers (unchanged) ---- */
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-    const mod = (value, base) => ((value % base) + base) % base;
 
-    let probe = null;
-    const parseColor = (value, fallback) => {
-        if (value === 'transparent') return null;
-        if (!probe) probe = document.createElement('canvas').getContext('2d');
-        if (!probe) return fallback;
-        probe.fillStyle = '#000000';
-        probe.fillStyle = value;
-        const text = probe.fillStyle;
-        if (text.startsWith('#')) {
-            const hex = parseInt(text.slice(1), 16);
-            return [((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255];
+    const parseColor = value => {
+        const text = String(value || '').trim();
+        const hex = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(text);
+        if (hex) {
+            const full = hex[1].length === 3 ? hex[1].replace(/./g, digit => digit + digit) : hex[1];
+            return [0, 2, 4].map(index => parseInt(full.slice(index, index + 2), 16) / 255);
         }
-        const match = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(text);
-        if (!match) return fallback;
-        if (match[4] !== undefined && Number(match[4]) === 0) return null;
-        return [Number(match[1]) / 255, Number(match[2]) / 255, Number(match[3]) / 255];
+        const rgb = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i.exec(text);
+        if (rgb) return [rgb[1], rgb[2], rgb[3]].map(channel => clamp(parseFloat(channel) / 255, 0, 1));
+        return null;
     };
 
-    const staggerFor = count => Math.min(0.12, 0.9 / Math.max(count - 1, 1));
+    const toLinear = channel => (channel <= 0.04045 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4));
+    const toSrgb = channel =>
+        channel <= 0.0031308 ? channel * 12.92 : 1.055 * Math.pow(Math.max(channel, 0), 1 / 2.4) - 0.055;
 
-    const toThreadSpace = (point, aspect, angle) => {
-        const qx = (point[0] - 0.5) * aspect;
-        const qy = 0.5 - point[1];
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        return [(qx * cos + qy * sin) / aspect + 0.5, -qx * sin + qy * cos + 0.5];
+    const toOklab = color => {
+        const [r, g, b] = color.map(toLinear);
+        const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+        const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+        const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+        return [
+            0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+            1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+            0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+        ];
     };
 
-    const threadY = (s, x, index, phase, clock) => {
-        const lane = s.nodes <= 1 ? x - s.pinch : (x - s.pinch + 0.5) * s.nodes - 0.5;
-        const side = s.mirror ? (mod(Math.floor(lane), 2) < 0.5 ? -1 : 1) : 1;
-        const dx = x - s.pinch;
-        const env = s.nodes <= 1 ? s.spread * Math.abs(dx) : s.spread * 0.5 * Math.abs(Math.cos(Math.PI * s.nodes * (dx + 0.5)));
-        const shimmer = s.shimmer ? Math.sin(clock * 1.7 + index * 1.3) * 0.35 : 0;
-        const angle = x * s.frequency + (phase + (index * TAU) / Math.max(s.count, 1)) * side + shimmer;
-        return s.position - env * (1 + index * s.taper) * Math.sin(angle);
+    const fromOklab = ([L, a, b]) => {
+        const l = Math.pow(L + 0.3963377774 * a + 0.2158037573 * b, 3);
+        const m = Math.pow(L - 0.1055613458 * a - 0.0638541728 * b, 3);
+        const s = Math.pow(L - 0.0894841775 * a - 1.291485548 * b, 3);
+        return [
+            4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+            -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+            -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+        ].map(channel => clamp(toSrgb(channel), 0, 1));
+    };
+
+    // A 256 x 2 colour strip: row 0 loops round the ring (conic), row 1 runs end to end
+    const buildPalette = (colors, light) => {
+        const stops = [];
+        colors.forEach(color => {
+            const parsed = parseColor(color);
+            if (!parsed) return;
+            const lab = toOklab(parsed);
+            const hue = (Math.atan2(lab[2], lab[1]) * 180) / Math.PI;
+            const warmth = clamp(1 - Math.abs(hue - 85) / 40, 0, 1);
+            const ceiling = 0.62 + 0.14 * warmth * warmth * (3 - 2 * warmth);
+            if (light && lab[0] > ceiling) {      // on a light page, darken colours that would wash out
+                const boost = 1 + (lab[0] - ceiling) * 1.6;
+                stops.push([ceiling, lab[1] * boost, lab[2] * boost]);
+            } else {
+                stops.push(lab);
+            }
+        });
+        if (!stops.length) stops.push(toOklab(light ? [0.1, 0.1, 0.12] : [1, 1, 1]));
+        const data = new Uint8Array(PALETTE_SIZE * 2 * 4);
+        const rows = [[...stops, stops[0]], stops.length > 1 ? stops : [stops[0], stops[0]]];
+        rows.forEach((row, index) => {
+            for (let x = 0; x < PALETTE_SIZE; x++) {
+                const t = (x / (PALETTE_SIZE - (index === 0 ? 0 : 1))) * (row.length - 1);
+                const from = Math.min(Math.floor(t), row.length - 2);
+                const k = t - from;
+                const eased = k * k * (3 - 2 * k);
+                const start = row[from];
+                const end = row[from + 1];
+                const chroma = Math.hypot(start[1], start[2]) * (1 - eased) + Math.hypot(end[1], end[2]) * eased;
+                const a = start[1] + (end[1] - start[1]) * eased;
+                const b = start[2] + (end[2] - start[2]) * eased;
+                const length = Math.hypot(a, b);
+                const scale = length > 1e-4 ? chroma / length : 0;
+                const color = fromOklab([start[0] + (end[0] - start[0]) * eased, a * scale, b * scale]);
+                for (let channel = 0; channel < 3; channel++) {
+                    data[(index * PALETTE_SIZE + x) * 4 + channel] = Math.round(color[channel] * 255);
+                }
+                data[(index * PALETTE_SIZE + x) * 4 + 3] = 255;
+            }
+        });
+        return data;
+    };
+
+    const random = seed => () => {
+        seed |= 0;
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 
     const compile = (gl, type, source) => {
@@ -331,54 +278,47 @@ void main() {
         return shader;
     };
 
-    const prefersReduced = () =>
-        RESPECT_REDUCED_MOTION && (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
+    const reduced = RESPECT_REDUCED_MOTION && (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
 
     /* ---- Settings object (what the React props became) ---- */
 
     function buildSettings(props) {
-        const palette = props.colors.slice(0, MAX_COLORS).map(value => parseColor(value, [1, 1, 1]) ?? [1, 1, 1]);
+        const palette = props.colors.length ? props.colors : ['#ffffff'];
         return {
-            palette: palette.length ? palette : [[1, 1, 1]],
-            core: parseColor(props.coreColor, [1, 1, 1]) ?? [1, 1, 1],
-            paper: parseColor(props.backgroundColor, null),
-            lightMode: props.lightMode,
-            count: clamp(Math.round(props.threadCount), 1, MAX_THREADS),
-            speed: props.speed,
-            frequency: props.frequency,
-            spread: props.spread,
-            taper: props.taper,
-            position: props.position,
-            pinch: props.pinch,
-            nodes: clamp(Math.round(props.nodes), 1, 6),
-            angle: (props.angle * Math.PI) / 180,
-            glow: Math.max(0, props.glow),
-            falloff: Math.max(0.05, props.falloff),
-            thickness: Math.max(0.05, props.thickness),
-            brightness: Math.max(0, props.brightness),
-            opacity: clamp(props.opacity, 0, 1),
-            depth: clamp(props.depth, 0, 1),
-            pulses: Math.max(0, props.pulses),
-            mirror: props.mirror,
-            shimmer: props.shimmer,
-            fade: clamp(props.fade, 0, 1),
-            grain: Math.max(0, props.grain),
+            count: clamp(Math.round(props.count), 1, 20000),
+            magnet: Math.max(0, props.magnetRadius),
+            ring: Math.max(0, props.ringRadius),
+            waveSpeed: props.waveSpeed,
+            waveAmplitude: Math.max(0, props.waveAmplitude),
+            waveCount: Math.max(0, Math.round(props.waveCount)),
+            size: Math.max(0, props.particleSize),
+            follow: clamp(props.lerpSpeed, 0.001, 1),
+            palette,
+            paletteKey: `${palette.join(',')}|${props.lightMode}`,
+            colorMode: COLOR_MODES[props.colorMode] ?? COLOR_MODES.conic,
+            colorSpeed: props.colorSpeed,
+            autoAnimate: props.autoAnimate,
+            variance: Math.max(0, props.particleVariance),
+            rotation: props.rotationSpeed,
+            depth: Math.max(0, props.depthFactor),
+            pulse: props.pulseSpeed,
+            shape: SHAPES[props.particleShape] ?? SHAPES.capsule,
+            tightness: Math.max(0, props.fieldStrength),
+            ambient: clamp(props.ambient, 0, 1),
+            interactive: props.interactive,
+            clickBurst: props.clickBurst,
             intro: props.intro,
-            mouseInteraction: props.mouseInteraction,
-            mouseStrength: clamp(props.mouseStrength, 0, 1),
-            pulseOnClick: props.pulseOnClick,
-            paused: props.paused,
-            dpr: Math.max(0.5, props.dpr),
+            light: props.lightMode,
+            opacity: clamp(props.opacity, 0, 1),
+            maxRatio: clamp(props.maxDevicePixelRatio, 0.5, 3),
         };
     }
 
-    // Narrow screens stack the text over more of the threads, so they're dimmer there
-    const SMALL_SCREEN_OPACITY = 0.6;
-
     const themeSettings = () => {
         const theme = document.documentElement.classList.contains('light') ? THEMES.light : THEMES.dark;
-        const small = window.matchMedia('(max-width: 700px)').matches;
-        return buildSettings({ ...DEFAULTS, ...STUDIO, ...theme,
+        const small = window.matchMedia(SMALL_SCREEN).matches;
+        return buildSettings({ ...DEFAULTS, ...theme,
+                               count: small ? SMALL_SCREEN_COUNT : DEFAULTS.count,
                                opacity: theme.opacity * (small ? SMALL_SCREEN_OPACITY : 1) });
     };
     let settings = themeSettings();
@@ -386,212 +326,357 @@ void main() {
     /* ---- Set up the layer and WebGL (the component's useEffect) ---- */
 
     const container = document.createElement('div');
-    container.className = 'web-threads';
+    container.className = 'site-background';
     container.setAttribute('aria-hidden', 'true');
     document.body.prepend(container);
 
     const canvas = document.createElement('canvas');
     container.appendChild(canvas);
     const gl = canvas.getContext('webgl2', {
-        alpha: true, antialias: false, depth: false, stencil: false,
-        premultipliedAlpha: true, powerPreference: 'high-performance',
+        alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false,
+        powerPreference: 'high-performance',
     });
     if (!gl) { container.remove(); return; }             // no WebGL2: the site simply has no background
 
     const vertex = compile(gl, gl.VERTEX_SHADER, VERTEX);
     const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT);
-    const program = gl.createProgram();
-    if (!vertex || !fragment || !program) { container.remove(); return; }
+    const program = vertex && fragment ? gl.createProgram() : null;
+    if (!program) { container.remove(); return; }
     gl.attachShader(program, vertex);
     gl.attachShader(program, fragment);
-    gl.bindAttribLocation(program, 0, 'aPosition');
     gl.linkProgram(program);
     gl.deleteShader(vertex);
     gl.deleteShader(fragment);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) { gl.deleteProgram(program); container.remove(); return; }
 
-    const names = ['uResolution', 'uPhase', 'uClock', 'uCount', 'uFrequency', 'uSpread', 'uTaper', 'uPosition',
-        'uPinch', 'uNodes', 'uAngle', 'uGlow', 'uFalloff', 'uThickness', 'uBrightness', 'uOpacity', 'uMirror',
-        'uShimmer', 'uDepth', 'uPulses', 'uFade', 'uGrain', 'uColors', 'uColorCount', 'uCore', 'uBackground',
-        'uOpaque', 'uLight', 'uIntro', 'uFocus', 'uFocusState', 'uSurges'];
     const u = {};
-    names.forEach(name => { u[name] = gl.getUniformLocation(program, name); });
+    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    for (let index = 0; index < uniformCount; index++) {
+        const info = gl.getActiveUniform(program, index);
+        if (info) u[info.name] = gl.getUniformLocation(program, info.name);
+    }
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const cornerBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cornerBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    gl.useProgram(program);
+    const particleBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(1, 1);
+    const seedBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, seedBuffer);
+    gl.enableVertexAttribArray(2);
+    gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(2, 1);
 
-    const colorData = new Float32Array(MAX_COLORS * 3);
-    const surgeData = new Float32Array(MAX_SURGES * 4);
-    const focus = new Float32Array(MAX_THREADS);
-    const state = {
-        width: 1, height: 1, phase: 0, clock: 0, last: 0, raf: 0, visible: true, introAt: -1,
-        pointer: [0.5, 0.5], inside: false, presence: 0, settle: 0, target: -1, surges: [], quiet: 0, seen: null,
+    const paletteTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const size = { width: 1, height: 1, ratio: 1 };
+    const cursor = { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, ready: false };
+    const pointer = { x: 0, y: 0, inside: false, down: false, moved: -Infinity };
+    let field = null;
+    let paletteKey = '';
+    let time = 0;
+    let hue = 0;
+    let charge = 0;
+    let introClock = settings.intro && !reduced ? 0 : Infinity;
+    let last = 0;
+    let lost = false;
+
+    const updatePalette = s => {
+        if (s.paletteKey === paletteKey) return;
+        paletteKey = s.paletteKey;
+        gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, PALETTE_SIZE, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                      buildPalette(s.palette, s.light));
+    };
+
+    // Spread the particles evenly over the screen (a shuffled grid with jitter), each with its own seeds
+    const buildField = (total, width, height, previous) => {
+        const rand = random(1337);
+        const margin = 0.06;
+        const spanX = width * (1 + margin * 2);
+        const spanY = height * (1 + margin * 2);
+        const cols = Math.max(1, Math.ceil(Math.sqrt((total * spanX) / spanY)));
+        const rows = Math.max(1, Math.ceil(total / cols));
+        const cells = Array.from({ length: cols * rows }, (_, index) => index);
+        for (let index = cells.length - 1; index > 0; index--) {
+            const swap = Math.floor(rand() * (index + 1));
+            [cells[index], cells[swap]] = [cells[swap], cells[index]];
+        }
+        const depths = Array.from({ length: total }, () => rand() * 2 - 1).sort((a, b) => a - b);
+        const next = {
+            total, width, height,
+            homeX: new Float32Array(total), homeY: new Float32Array(total),
+            band: new Float32Array(total), phase: new Float32Array(total),
+            agility: new Float32Array(total), delay: new Float32Array(total), orbit: new Float32Array(total),
+            x: new Float32Array(total), y: new Float32Array(total),
+            vx: new Float32Array(total), vy: new Float32Array(total),
+            particles: new Float32Array(total * 4), seeds: new Float32Array(total * 4),
+        };
+        for (let index = 0; index < total; index++) {
+            const cell = cells[index];
+            const hx = -width * margin + (((cell % cols) + 0.5 + (rand() - 0.5) * 0.85) / cols) * spanX;
+            const hy = -height * margin + ((Math.floor(cell / cols) + 0.5 + (rand() - 0.5) * 0.85) / rows) * spanY;
+            next.homeX[index] = hx;
+            next.homeY[index] = hy;
+            next.band[index] = rand() * 2 - 1;
+            next.phase[index] = rand() * Math.PI * 2;
+            next.agility[index] = 0.75 + rand() * 0.5;
+            next.delay[index] = rand();
+            if (previous && index < previous.total) {
+                next.x[index] = (previous.x[index] / previous.width) * width;
+                next.y[index] = (previous.y[index] / previous.height) * height;
+                next.vx[index] = previous.vx[index];
+                next.vy[index] = previous.vy[index];
+                next.orbit[index] = previous.orbit[index];
+            } else {
+                next.x[index] = hx;
+                next.y[index] = introClock === 0 ? hy + height * (0.45 + next.delay[index] * 0.4) : hy;
+            }
+            next.seeds[index * 4] = depths[index];
+            next.seeds[index * 4 + 1] = next.phase[index];
+            next.seeds[index * 4 + 2] = rand();
+            next.seeds[index * 4 + 3] = rand();
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, seedBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, next.seeds, gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, next.particles.byteLength, gl.DYNAMIC_DRAW);
+        return next;
     };
 
     const resize = () => {
-        const ratio = Math.min(window.devicePixelRatio || 1, settings.dpr);
-        const width = Math.max(1, Math.round(container.clientWidth * ratio));
-        const height = Math.max(1, Math.round(container.clientHeight * ratio));
-        if (width === state.width && height === state.height) return;
-        state.quiet = 0;
-        state.width = width;
-        state.height = height;
-        canvas.width = width;
-        canvas.height = height;
-    };
-
-    const introLength = s => (s.count - 1) * staggerFor(s.count) + STROKE_SECONDS;
-
-    const updateFocus = (s, dt, reduced) => {
-        const wanted = s.mouseInteraction && state.inside;
-        if (wanted) {
-            const aspect = state.width / Math.max(state.height, 1);
-            const [cx, cy] = toThreadSpace(state.pointer, aspect, s.angle);
-            let best = -1;
-            let bestDistance = Infinity;
-            for (let index = 0; index < s.count; index++) {
-                const distance = Math.abs(threadY(s, cx, index, state.phase, reduced ? 0 : state.clock) - cy);
-                const reach = index === state.target ? 0.11 : 0.085;
-                if (distance < reach && distance < bestDistance) { best = index; bestDistance = distance; }
-            }
-            state.target = best;
-        } else {
-            state.target = -1;
-        }
-        const ease = 1 - Math.exp(-dt / 0.22);
-        let strongest = 0;
-        for (let index = 0; index < MAX_THREADS; index++) {
-            const goal = index === state.target ? 1 : 0;
-            focus[index] += (goal - focus[index]) * ease;
-            strongest = Math.max(strongest, focus[index]);
-        }
-        state.presence += ((wanted ? 1 : 0) - state.presence) * (1 - Math.exp(-dt / 0.3));
-        const settleGoal = s.mouseStrength * 0.65 * strongest * state.presence;
-        state.settle += (settleGoal - state.settle) * (1 - Math.exp(-dt / 0.3));
-        return strongest > 0.002 || state.presence > 0.002 || state.settle > 0.002;
-    };
-
-    const render = reduced => {
         const s = settings;
-        const introClock = state.introAt < 0 ? 0 : state.clock - state.introAt;
-        const introRunning = s.intro && !reduced && introClock < introLength(s);
-        gl.viewport(0, 0, state.width, state.height);
-        gl.uniform2f(u.uResolution, state.width, state.height);
-        gl.uniform1f(u.uPhase, state.phase);
-        gl.uniform1f(u.uClock, reduced ? 0 : state.clock);
-        gl.uniform1i(u.uCount, s.count);
-        gl.uniform1f(u.uFrequency, s.frequency);
-        gl.uniform1f(u.uSpread, s.spread);
-        gl.uniform1f(u.uTaper, s.taper);
-        gl.uniform1f(u.uPosition, s.position);
-        gl.uniform1f(u.uPinch, s.pinch);
-        gl.uniform1f(u.uNodes, s.nodes);
-        gl.uniform2f(u.uAngle, Math.cos(s.angle), Math.sin(s.angle));
-        gl.uniform1f(u.uGlow, s.glow * Math.sqrt(6 / Math.max(s.count, 6)));
-        gl.uniform1f(u.uFalloff, s.falloff);
-        gl.uniform1f(u.uThickness, s.thickness);
-        gl.uniform1f(u.uBrightness, s.brightness);
-        gl.uniform1f(u.uOpacity, s.opacity);
-        gl.uniform1f(u.uMirror, s.mirror ? 1 : 0);
-        gl.uniform1f(u.uShimmer, s.shimmer && !reduced ? 1 : 0);
-        gl.uniform1f(u.uDepth, s.depth);
-        gl.uniform1f(u.uPulses, s.pulses);
-        gl.uniform1f(u.uFade, s.fade);
-        gl.uniform1f(u.uGrain, s.grain);
-        colorData.fill(0);
-        s.palette.slice(0, MAX_COLORS).forEach((rgb, index) => colorData.set(rgb, index * 3));
-        gl.uniform3fv(u.uColors, colorData);
-        gl.uniform1i(u.uColorCount, Math.min(s.palette.length, MAX_COLORS));
-        gl.uniform3f(u.uCore, s.core[0], s.core[1], s.core[2]);
-        const paperColor = s.paper ?? [0, 0, 0];
-        gl.uniform3f(u.uBackground, paperColor[0], paperColor[1], paperColor[2]);
-        gl.uniform1f(u.uOpaque, s.paper ? 1 : 0);
-        gl.uniform1f(u.uLight, s.lightMode ? 1 : 0);
-        gl.uniform4f(u.uIntro, introClock, staggerFor(s.count), STROKE_SECONDS, introRunning ? 1 : 0);
-        gl.uniform1fv(u.uFocus, focus);
-        gl.uniform2f(u.uFocusState, state.presence * (0.4 + 0.6 * s.mouseStrength), state.settle);
-        surgeData.fill(0);
-        state.surges.slice(-MAX_SURGES).forEach((surge, index) => {
-            surgeData.set([surge.x, state.clock - surge.at, surge.direction, 1], index * 4);
-        });
-        gl.uniform4fv(u.uSurges, surgeData);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        const cssWidth = Math.max(1, container.clientWidth);
+        const cssHeight = Math.max(1, container.clientHeight);
+        const ratio = Math.min(window.devicePixelRatio || 1, s.maxRatio, Math.sqrt(PIXEL_BUDGET / (cssWidth * cssHeight)));
+        const width = Math.max(1, Math.round(cssWidth * ratio));
+        const height = Math.max(1, Math.round(cssHeight * ratio));
+        if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+        size.width = cssWidth;
+        size.height = cssHeight;
+        size.ratio = width / cssWidth;
+        if (!cursor.ready) {
+            cursor.x = cursor.tx = cssWidth / 2;
+            cursor.y = cursor.ty = cssHeight / 2;
+            cursor.ready = true;
+        }
+        if (!field || field.total !== s.count ||
+            Math.abs(field.width - cssWidth) > 0.5 || Math.abs(field.height - cssHeight) > 0.5) {
+            field = buildField(s.count, cssWidth, cssHeight, field);
+        }
+    };
+
+    // Each particle springs towards its target: its home spot, or a place on the ring if the cursor is near
+    const simulate = (s, dt) => {
+        const unit = size.height / WORLD_HEIGHT;
+        const ringPx = s.ring * unit * (1 - 0.38 * charge);
+        const magnetPx = Math.max(s.magnet * unit, 1);
+        const spread = (5 / (s.tightness + 0.1)) * unit;
+        const wavePx = s.waveAmplitude * unit * 0.5;
+        const omegaBase = 2.2 + s.follow * 80;
+        const spinRate = (s.rotation + charge * 3) * (reduced ? 0.3 : 1);
+        const centerX = size.width / 2;
+        const centerY = size.height / 2;
+        const edge = magnetPx * 0.18;
+        const { homeX, homeY, band, phase, agility, delay, orbit, x, y, vx, vy, particles, seeds, total } = field;
+        for (let index = 0; index < total; index++) {
+            const parallax = 1 - seeds[index * 4] * 0.12 * s.depth;
+            const cx = centerX + (cursor.x - centerX) * parallax;
+            const cy = centerY + (cursor.y - centerY) * parallax;
+            const hx = homeX[index];
+            const hy = homeY[index] + Math.sin(time * 0.7 + phase[index]) * unit * 0.12 * s.waveAmplitude;
+            const dx = hx - cx;
+            const dy = hy - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const capture = 1 - clamp((dist - (magnetPx - edge)) / (edge * 2), 0, 1);
+            const ease = capture * capture * (3 - 2 * capture);
+            let turn = orbit[index] + spinRate * ease * dt;
+            turn -= Math.atan2(Math.sin(turn), Math.cos(turn)) * (1 - ease) * Math.min(1, dt * 2.5);
+            orbit[index] = turn;
+            let tx = hx;
+            let ty = hy;
+            if (ease > 0 || Math.abs(turn) > 1e-4) {
+                const angle = Math.atan2(dy, dx) + turn;
+                const wave = wavePx * (0.6 * Math.sin(angle * s.waveCount - time * s.waveSpeed * 2) +
+                                       0.4 * Math.sin(phase[index] + time * s.waveSpeed * 1.3));
+                const radius = dist + (ringPx + wave + band[index] * spread - dist) * ease;
+                tx = cx + Math.cos(angle) * radius;
+                ty = cy + Math.sin(angle) * radius;
+            }
+            const omega = introClock < delay[index] * 0.9 ? 0 : omegaBase * agility[index];
+            const damping = 1.64 * omega;
+            const stiffness = omega * omega;
+            const steps = Math.min(4, Math.max(1, Math.ceil(omega * dt * 2)));
+            const h = dt / steps;
+            for (let step = 0; step < steps; step++) {
+                vx[index] += ((tx - x[index]) * stiffness - vx[index] * damping) * h;
+                vy[index] += ((ty - y[index]) * stiffness - vy[index] * damping) * h;
+                x[index] += vx[index] * h;
+                y[index] += vy[index] * h;
+            }
+            particles[index * 4] = x[index];
+            particles[index * 4 + 1] = y[index];
+            particles[index * 4 + 2] = vx[index];
+            particles[index * 4 + 3] = vy[index];
+        }
+    };
+
+    const burst = (s, strength) => {
+        if (!field) return;
+        const unit = size.height / WORLD_HEIGHT;
+        const reach = Math.max(s.magnet, s.ring) * unit * 1.8;
+        const { x, y, vx, vy, agility, total } = field;
+        for (let index = 0; index < total; index++) {
+            const dx = x[index] - cursor.x;
+            const dy = y[index] - cursor.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) + 1e-3;
+            const kick = unit * 110 * strength * Math.exp(-Math.pow(dist / reach, 2)) * agility[index];
+            vx[index] += (dx / dist) * kick;
+            vy[index] += (dy / dist) * kick;
+        }
     };
 
     const tick = now => {
-        state.raf = requestAnimationFrame(tick);
-        if (!state.visible || document.hidden) { state.last = now; return; }   // paused in background tabs
+        requestAnimationFrame(tick);
+        if (lost || document.hidden) { last = now; return; }   // paused in background tabs
         const s = settings;
-        const dt = state.last ? Math.min((now - state.last) / 1000, 0.1) : 1 / 60;
-        state.last = now;
-        const reduced = prefersReduced();
-        state.clock += dt;
-        if (state.introAt < 0) state.introAt = state.clock;
-        if (!s.paused && !reduced) state.phase += dt * s.speed;
-        const focusing = updateFocus(s, dt, reduced);
-        state.surges = state.surges.filter(surge => state.clock - surge.at < SURGE_SECONDS + (s.count - 1) * SURGE_STAGGER);
-
-        // When nothing moves (reduced motion, no hover, no click pulse), stop redrawing to save battery
-        const still = s.paused || reduced;
-        const transient = state.surges.length > 0 || (s.intro && !reduced && state.clock - state.introAt < introLength(s)) || focusing;
-        if (state.seen !== s || transient || !still) state.quiet = 0;
-        else state.quiet += 1;
-        state.seen = s;
-        if (state.quiet > 3) return;
-
         resize();
-        render(reduced);
+        updatePalette(s);
+        const dt = clamp((now - last) / 1000 || 0, 0, 1 / 30);
+        last = Math.max(last, now);
+        const pace = reduced ? 0.3 : 1;
+        time += dt * pace;
+        hue += dt * s.colorSpeed * pace;
+        if (introClock < 3) introClock += dt;
+        charge = pointer.down ? Math.min(1, charge + dt / 0.9) : Math.max(0, charge - dt * 4);
+
+        // No mouse movement for 2 seconds (or a phone): the ring wanders across the page by itself
+        const idle = performance.now() - pointer.moved > 2000 || !pointer.inside;
+        if (s.autoAnimate && !reduced && (idle || !s.interactive)) {
+            cursor.tx = size.width / 2 + Math.sin(time * 0.5) * (size.width / 4);
+            cursor.ty = size.height / 2 + Math.cos(time) * (size.height / 4);
+        } else if (s.interactive && pointer.inside) {
+            cursor.tx = pointer.x;
+            cursor.ty = pointer.y;
+        }
+        cursor.vx += ((cursor.tx - cursor.x) * 49 - cursor.vx * 14) * dt;
+        cursor.vy += ((cursor.ty - cursor.y) * 49 - cursor.vy * 14) * dt;
+        cursor.x += cursor.vx * dt;
+        cursor.y += cursor.vy * dt;
+
+        simulate(s, dt);
+
+        const unit = size.height / WORLD_HEIGHT;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.useProgram(program);
+        gl.bindVertexArray(vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, field.particles);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
+        gl.uniform1i(u.uPalette, 0);
+        gl.uniform2f(u.uSize, size.width, size.height);
+        gl.uniform1f(u.uPixel, size.ratio);
+        gl.uniform2f(u.uCursor, cursor.x, cursor.y);
+        gl.uniform1f(u.uRing, s.ring * unit * (1 - 0.38 * charge));
+        gl.uniform1f(u.uBand, Math.max(unit * 6, 1));
+        gl.uniform1f(u.uParticle, s.size * unit * 0.6);
+        gl.uniform1f(u.uAmbient, s.ambient);
+        gl.uniform1f(u.uTime, time);
+        gl.uniform1f(u.uPulse, s.pulse);
+        gl.uniform1f(u.uVariance, s.variance);
+        gl.uniform1f(u.uDepth, s.depth);
+        gl.uniform1f(u.uShape, s.shape);
+        gl.uniform1f(u.uColorMode, s.colorMode);
+        gl.uniform1f(u.uStops, s.palette.length);
+        gl.uniform1f(u.uHue, hue);
+        gl.uniform1f(u.uReveal, introClock < 3 ? clamp(introClock / 0.6, 0, 1) : 1);
+        gl.uniform1f(u.uStreak, unit * 30);
+        gl.uniform1f(u.uCharge, charge);
+        gl.uniform1f(u.uOpacity, s.opacity);
+        gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, field.total);
     };
 
-    const local = event => {
+    /* ---- Pointer: the ring follows the mouse; hold and release on empty space for a burst ---- */
+
+    const locate = event => {
         const rect = container.getBoundingClientRect();
         return {
-            x: (event.clientX - rect.left) / Math.max(rect.width, 1),
-            y: (event.clientY - rect.top) / Math.max(rect.height, 1),
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
             inside: event.clientX >= rect.left && event.clientX <= rect.right &&
                     event.clientY >= rect.top && event.clientY <= rect.bottom,
         };
     };
 
     window.addEventListener('pointermove', event => {
-        const point = local(event);
-        state.inside = point.inside;
-        if (point.inside) state.pointer = [point.x, point.y];
+        const spot = locate(event);
+        pointer.inside = spot.inside;
+        if (!spot.inside) return;
+        pointer.x = spot.x;
+        pointer.y = spot.y;
+        pointer.moved = performance.now();
     }, { passive: true });
 
-    document.documentElement.addEventListener('pointerleave', () => { state.inside = false; });
-
-    // Click empty space to send a pulse of light along the threads (not on links or buttons)
     window.addEventListener('pointerdown', event => {
         const s = settings;
-        if (!s.pulseOnClick || event.button !== 0 || prefersReduced()) return;
-        if (event.target instanceof Element &&
-            event.target.closest('a, button, input, textarea, select, label, canvas, [role="button"]')) return;
-        const point = local(event);
-        if (!point.inside) return;
-        const aspect = state.width / Math.max(state.height, 1);
-        const [x] = toThreadSpace([point.x, point.y], aspect, s.angle);
-        state.surges.push({ x, direction: x <= s.pinch ? 1 : -1, at: state.clock });
-        if (state.surges.length > MAX_SURGES) state.surges.shift();
+        const spot = locate(event);
+        if (!spot.inside || !s.interactive) return;
+        pointer.x = spot.x;
+        pointer.y = spot.y;
+        pointer.inside = true;
+        pointer.moved = performance.now();
+        // Links, buttons and the demos keep their clicks to themselves: no charge-up there
+        const onControl = event.target instanceof Element &&
+            event.target.closest('a, button, input, textarea, select, label, canvas, [role="button"]');
+        if (s.clickBurst && !reduced && event.button === 0 && !onControl) pointer.down = true;
+    }, { passive: true });
+
+    window.addEventListener('pointerup', event => {
+        if (pointer.down) burst(settings, 0.45 + charge);
+        pointer.down = false;
+        if (event.pointerType !== 'mouse') pointer.inside = false;
+    }, { passive: true });
+
+    // A cancelled touch is usually a scroll: let go without a burst
+    window.addEventListener('pointercancel', () => {
+        pointer.down = false;
+        pointer.inside = false;
+    }, { passive: true });
+
+    document.documentElement.addEventListener('pointerleave', () => {
+        pointer.inside = false;
+        pointer.down = false;
     });
 
-    window.matchMedia('(max-width: 700px)').addEventListener('change', () => { settings = themeSettings(); });
-    new ResizeObserver(resize).observe(container);
-    resize();
+    canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); lost = true; });
 
     // Follow the site's light/dark toggle (script.js adds or removes class="light" on <html>)
     new MutationObserver(() => { settings = themeSettings(); }).observe(document.documentElement, {
         attributes: true, attributeFilter: ['class'],
     });
+    window.matchMedia(SMALL_SCREEN).addEventListener('change', () => { settings = themeSettings(); });
 
-    state.raf = requestAnimationFrame(tick);
+    resize();
+    last = performance.now();
+    requestAnimationFrame(tick);
 })();

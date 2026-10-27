@@ -1408,20 +1408,20 @@ kbd{
    has no background of its own; cards and panels stay solid, so text is
    always readable. pointer-events: none keeps every click on the page. */
 
-.web-threads{
+.site-background{
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
 }
-.web-threads canvas{
+.site-background canvas{
     display: block;
     width: 100%;
     height: 100%;
 }
 
-/* Text over the threads: a soft halo in the page's own background colour, so a
-   thread passing behind a word fades out at the word. Works in both themes. */
+/* Text over the background: a soft halo in the page's own background colour, so a
+   particle passing behind a word fades out at the word. Works in both themes. */
 .home-content .intro,
 .text-animation,
 .doc p,
