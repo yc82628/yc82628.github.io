@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Building SigPath alone for the Solana x Superteam Germany hackathon: scam checks and on-chain escrow.">
+    <title>Building SigPath solo: why a shopping tool needed a blockchain — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html" class="active">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="journal.html" class="back-link">&larr; back to journal</a>
+
+            <h1>Building SigPath solo: why a shopping tool needed a blockchain</h1>
+
+            <div class="doc-meta">
+                <span>Oct 2026</span>
+                <span>Solana &times; Superteam Germany</span>
+                <span>Next.js</span>
+                <span>Rust</span>
+                <span>2 min read</span>
+            </div>
+
+            <p class="project-pitch">Online marketplaces are full of listings that are too good to be true. For the
+               Solana &times; Superteam Germany hackathon I built SigPath on my own: it searches live listings, shows
+               the best price with shipping included, checks every listing for scam signs, and lets you pay through
+               an on-chain escrow.</p>
+            <p><strong>My role:</strong> a solo project.</p>
+
+            <h2>Four questions for every listing</h2>
+            <p>Each listing gets one verdict, built from four checks:</p>
+            <p><strong>Price.</strong> Is it plausible for its condition, compared with identical live listings?<br>
+               <strong>Photo.</strong> Is the same picture used by other sellers?<br>
+               <strong>Account.</strong> Is the seller's account brand new?<br>
+               <strong>Reports.</strong> Has a verified buyer reported this seller for fakes?</p>
+            <p>The result is <em>SigPath-checked</em>, <em>Look closer</em> (with the reason), or <em>Not
+               price-checked</em> when there's nothing to compare against. The page says plainly that "checked" means
+               checked, not guaranteed. A scam checker that overpromises isn't helping anyone.</p>
+
+            <h2>Why a blockchain, and not just a database</h2>
+            <p>"Why crypto?" needed an answer that a normal database can't give. Three parts of SigPath qualify.</p>
+            <p><strong>Escrow instead of trust.</strong> You pay in USDC into an escrow program on Solana. The seller
+               is only paid once the order is fulfilled. If it isn't, anyone can trigger the refund, and the money can
+               only go back to the buyer. You don't have to trust the seller, or me.</p>
+            <p><strong>Reports only from real buyers.</strong> Only the wallet that paid for an order can report it,
+               with a live photo of what arrived, and the seller gets 7 days to reply before a report can be
+               upheld.</p>
+            <p><strong>Penalties that follow the seller.</strong> An upheld finding is published to the Solana
+               Attestation Service under the seller's marketplace handle, so anyone can check it without trusting
+               SigPath's own database. Verified sellers earn a badge token that can't be transferred or sold, and an
+               upheld report burns it.</p>
+
+            <h2>Every layer, one person</h2>
+            <p>Building solo meant every layer was mine: a Next.js 14, React and TypeScript front end on Vercel, two
+               Anchor programs in Rust, the eBay Browse API for real listings from eBay Germany, Google Gemini for
+               Ai-chan the shopping assistant, a browser extension, price-drop alerts and a German / English
+               interface.</p>
+            <p>Payments run on Solana devnet, the test network, so you can try the whole flow without real money.</p>
+
+            <h2>What I'm taking away</h2>
+            <p>If a product uses a blockchain, start from what genuinely has to work without trusting anyone: here,
+               holding the money and recording penalties. Everything else, like search and the scam checks, stays
+               ordinary web code.</p>
+
+            <div class="doc-links">
+                <a href="sigpath.html" class="btn primary">See SigPath</a>
+                <a href="journal.html" class="btn">All journal entries</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="background.js"></script>
+</body>
+</html>

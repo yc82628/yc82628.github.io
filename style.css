@@ -1467,3 +1467,15 @@ kbd{
     text-align: center;
     color: var(--muted);
 }
+
+/* Journal: two groups of posts, newest post spans the full width */
+.journal-group{
+    max-width: 1000px;
+    margin: 0 auto 18px;
+    font: 500 14px var(--mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+.journal-list + .journal-group{ margin-top: 64px; }
+.journal-card.latest{ grid-column: 1 / -1; }

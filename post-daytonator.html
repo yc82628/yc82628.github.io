@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My part of Daytonator: forking one clean sandbox into baited copies to catch evasive malware.">
+    <title>Forking one sandbox into five to catch malware that hides — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html" class="active">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="journal.html" class="back-link">&larr; back to journal</a>
+
+            <h1>Forking one sandbox into five to catch malware that hides</h1>
+
+            <div class="doc-meta">
+                <span>Jun 2026</span>
+                <span>Daytona AI Builder Hackathon</span>
+                <span>Python</span>
+                <span>security</span>
+                <span>1 min read</span>
+            </div>
+
+            <p class="project-pitch">AI coding agents sometimes invent package names that don't exist. Attackers
+               register those names and fill them with malware, a trick called slopsquatting. At the Daytona AI
+               Builder Hackathon our team built Daytonator to catch it, and finished in the top 10.</p>
+            <p><strong>My part:</strong> the sandbox forking.</p>
+
+            <h2>The problem with one sandbox</h2>
+            <p>Evasive malware checks where it is before doing anything. If there are no credentials to steal and
+               nothing looks like production, it stays quiet. Scan it in one clean sandbox, see zero suspicious
+               events, and you'd call it safe.</p>
+
+            <h2>One snapshot, five forks</h2>
+            <p>The scan starts from one clean Daytona sandbox snapshot, so every run begins from an identical state.
+               I fork that snapshot into separate environments, each with one planted bait: nothing at all (the
+               control), an SSH key, AWS credentials, a production-looking host, or a clock jumped forward.</p>
+            <p>The package is then installed in every fork while <code>strace</code> records file, network and
+               process activity.</p>
+
+            <h2>The control is the proof</h2>
+            <p>Because the forks are identical except for one bait, the comparison is clean: behaviour that shows up
+               in a baited fork but not in the control was provably triggered by that bait. In our test scan, the
+               control saw 0 events, exactly what a normal sandbox would report, while the baited forks caught the
+               package reaching for the planted values.</p>
+            <p>The test package is a safe fixture: it only reads fake planted values and "sends" them to an
+               unroutable documentation address.</p>
+
+            <h2>Explaining the verdict</h2>
+            <p>A language model (Qwen2.5-72B via Featherless) writes the verdict in plain English. If no model is
+               available, a built-in heuristic takes over, so a scan never fails just because an API is down.</p>
+
+            <h2>What I'd do next</h2>
+            <p>Stronger isolation with microVMs for genuinely hostile code, more baits, and a mode that sits in front
+               of an agent's <code>pip install</code> and blocks bad packages in real time.</p>
+
+            <div class="doc-links">
+                <a href="daytonator.html" class="btn primary">See Daytonator</a>
+                <a href="journal.html" class="btn">All journal entries</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="background.js"></script>
+</body>
+</html>

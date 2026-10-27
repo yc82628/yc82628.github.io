@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="What happened when my diabetic retinopathy model was tested on another clinic's images.">
+    <title>Testing my retina model on a clinic it had never seen — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html" class="active">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="journal.html" class="back-link">&larr; back to journal</a>
+
+            <h1>Testing my retina model on a clinic it had never seen</h1>
+
+            <div class="doc-meta">
+                <span>Oct 2026</span>
+                <span>PyTorch</span>
+                <span>medical imaging</span>
+                <span>evaluation</span>
+                <span>2 min read</span>
+            </div>
+
+            <p class="project-pitch">My diabetic retinopathy model scored an AUROC of 0.976 on test images from the
+               same clinics it was trained on. That number felt great, and it's also the least useful number I have.
+               A screening tool gets used at new sites, with different cameras and different patients, so the real
+               test is a clinic it has never seen.</p>
+            <p><strong>My role:</strong> a solo project.</p>
+
+            <h2>The test</h2>
+            <p>I trained on DeepDRiD (clinics in China) and tested on IDRiD, a clinic in India. 257 IDRiD images
+               were held out completely: nothing was trained, calibrated or tuned on them. On those images the model
+               reached an <strong>AUROC of 0.938</strong>, caught <strong>88% of referable cases</strong> (sensitivity
+               0.882) and correctly cleared <strong>85% of healthy eyes</strong> (specificity 0.854).</p>
+            <p>It passed its own acceptance gate, and the service refuses to load any model that fails it. But 18
+               referable eyes in that set were still missed, which is why every output is meant to support a human
+               grader, not replace one.</p>
+
+            <h2>Three mistakes that would have flattered me</h2>
+            <p><strong>Patient leakage.</strong> With a naive random split, 142 of 400 patients ended up in both
+               training and test, so the model would have been tested on eyes it had already seen. Splits are now
+               grouped by patient.</p>
+            <p><strong>Image size.</strong> At 224 pixels, the usual default, a tiny lesion shrinks to about 1.3
+               pixels and can't be told apart from noise. I train at 512.</p>
+            <p><strong>Calibration.</strong> Temperature scaling, the popular fix for overconfident models, made
+               calibration worse here. Isotonic calibration took the error from 0.102 to 0.031.</p>
+
+            <h2>Ungradable is not healthy</h2>
+            <p>In real screening, 5&ndash;20% of photos are unusable, and a blurred photo must never be quietly
+               graded as healthy. A simple sharpness check couldn't tell them apart (AUROC 0.499, a coin flip), so I
+               trained a quality model on human quality ratings (AUROC 0.811), with classical checks as a backstop.</p>
+
+            <h2>Letting the model say "I'm not sure"</h2>
+            <p>Cases near the decision boundary, with scores between 0.29 and 0.91, fall into an abstention band and
+               go to a human grader instead of getting a confident wrong answer. Above it, the case is referred; the
+               served operating point is 0.67. Every grader verdict is logged, so drift can be spotted after
+               deployment.</p>
+
+            <h2>What still isn't good enough</h2>
+            <p>The external test set is small, so the true sensitivity could still be below my 0.85 target, and that
+               has to be confirmed on a larger sample from the site that deploys it. The model isn't plug-and-play
+               either: each new site needs its own labelled calibration sample first. It's research software, not a
+               medical device.</p>
+
+            <h2>What I'd tell anyone building one</h2>
+            <p>Report the external number, not the internal one, and design for the photos and cases your model will
+               get wrong. That's the part a clinic will actually feel.</p>
+
+            <div class="doc-links">
+                <a href="medical-imaging.html" class="btn primary">See the project</a>
+                <a href="journal.html" class="btn">All journal entries</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="background.js"></script>
+</body>
+</html>

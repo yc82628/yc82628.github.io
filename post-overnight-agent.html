@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Four lessons from running an autonomous coding agent overnight at the 42 Berlin x Needle Hackathon.">
+    <title>What I learned watching an AI agent code overnight — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html" class="active">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="journal.html" class="back-link">&larr; back to journal</a>
+
+            <h1>What I learned watching an AI agent code overnight</h1>
+
+            <div class="doc-meta">
+                <span>May 2026</span>
+                <span>42 Berlin &times; Needle Hackathon</span>
+                <span>AI agents</span>
+                <span>Python</span>
+                <span>1 min read</span>
+            </div>
+
+            <p class="project-pitch">At the 42 Berlin &times; Needle Hackathon (21&ndash;22 May 2026), my teammate
+               and I entered Midknight Watcher, an autonomous coding agent. Given a hidden spec, it plans, writes
+               code, runs the tests and repairs its own work, all night, with no human writing the code.</p>
+            <p><strong>My role:</strong> Sushi (Shrish Arunesh) wrote the agent. I monitored the overnight run and
+               handled the Friday-morning recovery.</p>
+
+            <h2>The result</h2>
+            <p>The agent passed <strong>92 of 150</strong> public tests, every line written by the agent itself, and
+               30 of 100 on the hidden test set. It runs on a custom loop of about 620 lines instead of a framework,
+               so it could be patched live, with a three-tier model fallback: Qwen3-235B, then Llama 3.3 70B, then a
+               local Qwen3.5 9B.</p>
+
+            <h2>1. Fall back to a different model family</h2>
+            <p>When an API goes down, the agent drops to the next tier. Qwen and Llama fail in different ways, so the
+               backup covers the primary's blind spots instead of repeating them.</p>
+
+            <h2>2. Commit every iteration</h2>
+            <p>Iteration 30 introduced an infinite loop. Because every iteration was committed, one
+               <code>git checkout</code> restored the 92/150 version.</p>
+
+            <h2>3. Check the harness before blaming the code</h2>
+            <p>Some overnight runs scored 0/150, which looked like the agent had broken everything. It hadn't: file
+               timestamps were confusing the test runner. The code was fine; the measurement was wrong.</p>
+
+            <h2>4. Always add timeouts</h2>
+            <p>One test hung and went unnoticed until five Python processes were still running. A timeout on every
+               test run is cheap insurance.</p>
+
+            <h2>What I took into later projects</h2>
+            <p>Assume outside services will fail, keep every version recoverable, and check the measurement before
+               trusting the score. Daytonator and Router Rumble both keep working when their AI isn't available, and
+               that habit started here.</p>
+
+            <div class="doc-links">
+                <a href="midknight-watcher.html" class="btn primary">See the replay</a>
+                <a href="journal.html" class="btn">All journal entries</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="background.js"></script>
+</body>
+</html>

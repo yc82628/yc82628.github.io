@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How our team of three built Router Rumble, a co-op phone party game, at the Codex Hackathon.">
+    <title>Building a party game in one day at the Codex Hackathon — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html" class="active">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="journal.html" class="back-link">&larr; back to journal</a>
+
+            <h1>Building a party game in one day at the Codex Hackathon</h1>
+
+            <div class="doc-meta">
+                <span>24 Oct 2026</span>
+                <span>Codex Hackathon</span>
+                <span>JavaScript</span>
+                <span>Socket.IO</span>
+                <span>2 min read</span>
+            </div>
+
+            <p class="project-pitch">At the Codex Hackathon in October, my team of three built Router Rumble: a
+               co-op party game where the big screen shows a Wi-Fi network and every player's phone is both a
+               controller and a device on that network. Routers overload and crash, and the team has to reroute
+               traffic before network health hits zero.</p>
+            <p><strong>My part:</strong> I handled most of the web interface, designed the device icons, and built
+               the game's backend controls.</p>
+
+            <h2>Design for the room, not the laptop</h2>
+            <p>A party game gets played in a noisy room, on whatever phones people have, over Wi-Fi that might be
+               bad. Joining has to be as quick as scanning a QR code, a phone that drops out can't ruin the round,
+               and nothing is allowed to make everyone wait. That shaped most of the decisions below.</p>
+
+            <h2>One screen runs the game</h2>
+            <p>The big screen runs the whole simulation 10 times a second and draws at 60 frames per second. The
+               Node.js server doesn't simulate anything: it only relays messages between the phones and the big
+               screen in each room. That keeps it light. In a load test, 250 simulated players across 25 rooms each
+               kept about 10 updates per second, using around 100 MB of memory.</p>
+
+            <h2>Make the team talk</h2>
+            <p>Each player runs an access point, and their phone shows exact load numbers that the big screen
+               doesn't. Nobody can play well alone, so people have to call out what they see. From the phone you can
+               PUSH traffic to a neighbour, BOOST capacity for 5 seconds, FIX a crashed router, and from level 2 SEND
+               a hungry device to another access point. Every tap gives feedback (points, streaks, and a buzz on real
+               achievements), because on a touchscreen you can't feel whether a button did anything.</p>
+
+            <h2>Plan for a crowded room</h2>
+            <p>A room holds up to 10 players and a server up to 30 rooms. A phone that drops keeps its spot for 15
+               seconds, so a locked screen or a Wi-Fi hiccup doesn't kick anyone out. Inputs are rate-limited, so one
+               person spamming buttons can't crash the server for everyone else.</p>
+
+            <h2>Never wait on the AI</h2>
+            <p>With an OpenAI key, an optional "incident commander" comments on the game. It has a 3-second timeout,
+               and without a key, or on any error, it falls back to written lines. The game never waits on the AI and
+               runs fully offline. In a live demo, the only feature allowed to fail is one the game doesn't depend on.</p>
+
+            <h2>What I'm taking away</h2>
+            <p>Keep the server simple, give feedback for every tap, and treat every outside service as optional.
+               Those choices are why the game still runs on a free hosting tier, and why you can try it yourself
+               (the first load can take up to a minute while it wakes up).</p>
+
+            <div class="doc-links">
+                <a href="router-rumble.html" class="btn primary">See Router Rumble</a>
+                <a href="journal.html" class="btn">All journal entries</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="background.js"></script>
+</body>
+</html>
