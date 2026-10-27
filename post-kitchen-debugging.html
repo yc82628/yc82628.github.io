@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="What working as a chef taught me about debugging: a journal entry by Yu Chuan Oh.">
+    <title>What a kitchen taught me about debugging — Yu Chuan Oh</title>
+
+    <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
+    <script>
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">Yu Chuan</a>
+
+        <div class="header-right">
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="journal.html" class="active">Journal</a>
+            </nav>
+
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch to light mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button type="button" class="icon-btn" id="menu-icon" aria-label="Open menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-section">
+        <div class="doc">
+            <a href="journal.html" class="back-link">&larr; back to journal</a>
+
+            <h1>What a kitchen taught me about debugging</h1>
+
+            <div class="doc-meta">
+                <span>career change</span>
+                <span>debugging</span>
+            </div>
+
+            <p class="project-pitch">[Open with one real moment from service: a dish that came back to the
+               pass. What was wrong with it, and how did you find out? Start in the middle of the moment, not
+               with "I used to be a chef".]</p>
+
+            <h2>How a kitchen finds a mistake</h2>
+            <p>[How you actually traced it: taste it, then work backwards through the steps (the sauce, the
+               seasoning, the timing, the station). Why guessing and remaking the whole dish wasn't an option in
+               the middle of service.]</p>
+
+            <h2>The same thing, in code</h2>
+            <p>[One real bug from your own work, told the same way: what looked wrong, the step you checked
+               first, and the one step that turned out to be the cause. Pick a single bug and tell it properly.]</p>
+
+            <h2>What carries over</h2>
+            <p>[Two or three habits from the kitchen you still use, e.g. reproduce it before you fix it, change one
+               thing at a time, keep your station (your code) clean so problems are easy to see.]</p>
+
+            <h2>Where the comparison breaks</h2>
+            <p>[Optional, but it makes the post more honest: something about debugging that the kitchen didn't
+               prepare you for.]</p>
+
+            <h2>What I'd tell someone switching careers</h2>
+            <p>[One or two sentences. What from their old job will turn out to be useful?]</p>
+
+            <div class="doc-links">
+                <a href="journal.html" class="btn">All journal entries</a>
+                <a href="projects.html" class="btn primary">See what I built</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/yu-chuan-oh-169a3419b/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/yc82628" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/YC82628" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Me</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="journal.html">Journal</a></li>
+        </ul>
+
+        <p class="copyright">&copy; Yu Chuan Oh | All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="background.js"></script>
+</body>
+</html>
