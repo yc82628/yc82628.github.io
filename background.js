@@ -41,6 +41,8 @@
             lightMode: true, opacity: 0.85,
         },
     };
+    // Both themes: small triangles that glitter instead of the default capsule streaks
+    const SHAPE = { particleShape: 'tetrahedron', particleSize: 0.8 };
     const DEFAULTS = {          // the component's own defaults for everything else
         count: 1500, magnetRadius: 9, colorSpeed: 0.05,
         ringRadius: 7, waveSpeed: 0.4, waveAmplitude: 1, waveCount: 3, particleSize: 0.9,
@@ -50,10 +52,11 @@
         maxDevicePixelRatio: 2,
     };
 
-    // Phones get fewer particles (a narrow screen packs them tighter) and a dimmer layer under the text
+    // Phones get fewer particles (a narrow screen packs them tighter). The reading-column
+    // fade in style.css already dims the layer under the text there, so no extra dimming.
     const SMALL_SCREEN = '(max-width: 700px)';
     const SMALL_SCREEN_COUNT = 1000;
-    const SMALL_SCREEN_OPACITY = 0.6;
+    const SMALL_SCREEN_OPACITY = 1;
 
     /* ---- Constants and shaders (unchanged from the original component) ---- */
 
@@ -317,7 +320,7 @@ void main() {
     const themeSettings = () => {
         const theme = document.documentElement.classList.contains('light') ? THEMES.light : THEMES.dark;
         const small = window.matchMedia(SMALL_SCREEN).matches;
-        return buildSettings({ ...DEFAULTS, ...theme,
+        return buildSettings({ ...DEFAULTS, ...theme, ...SHAPE,
                                count: small ? SMALL_SCREEN_COUNT : DEFAULTS.count,
                                opacity: theme.opacity * (small ? SMALL_SCREEN_OPACITY : 1) });
     };

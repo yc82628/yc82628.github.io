@@ -31,7 +31,7 @@
     --bg-2:        #131313;               /* alternate section background */
     --surface:     #0e0e0e;               /* cards and boxes */
     --text:        #f4f7f7;
-    --muted:       #a3adad;               /* secondary text */
+    --muted:       #c3cbcb;               /* secondary text (bright enough to read over the background) */
     --accent:      #00ffee;               /* borders, dots, glow */
     --accent-ink:  #00ffee;               /* accent-coloured text + solid buttons */
     --on-accent:   #041414;               /* text on a solid accent button */
@@ -61,7 +61,7 @@
     --bg-2:        #e9e8f7;
     --surface:     #ffffff;
     --text:        #16152c;
-    --muted:       #5b5a78;
+    --muted:       #45445f;
     --accent:      #7b6cff;
     --accent-ink:  #4338ca;
     --on-accent:   #ffffff;
@@ -1413,6 +1413,17 @@ kbd{
     inset: 0;
     z-index: -1;
     pointer-events: none;
+
+    /* Reading column: the background fades to 35% behind the middle of the page,
+       where the text is, and stays at full strength in the side margins.
+       On narrow screens the whole width is reading column, so it's 35% everywhere. */
+    --reading-mask: linear-gradient(to right,
+        #000 calc(50% - 640px),
+        rgba(0, 0, 0, 0.35) calc(50% - 480px),
+        rgba(0, 0, 0, 0.35) calc(50% + 480px),
+        #000 calc(50% + 640px));
+    -webkit-mask-image: var(--reading-mask);
+    mask-image: var(--reading-mask);
 }
 .site-background canvas{
     display: block;
