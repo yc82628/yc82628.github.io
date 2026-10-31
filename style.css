@@ -150,9 +150,18 @@ section{
 }
 
 .logo{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-size: 28px;
     font-weight: 800;
     transition: transform .3s ease;
+}
+/* The split-gear mark (brand/logo-mark.svg): the same colours in both themes */
+.logo-mark{
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
 }
 .logo:hover{ transform: scale(1.06); }
 
