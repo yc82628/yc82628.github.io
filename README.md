@@ -1,7 +1,7 @@
 # Web-Portfolio
 This is a fun side project that I am planning to use as a journal to show my journey as a programmer. I will continue to improve the website itself, stay tune and look to enjoy how my journey has unfold throughout my life.
 
-Please check it out and give me feedbacks on your opinion about it: https://yc82628.github.io/
+Please check it out and give me feedbacks on your opinion about it: https://yuchuan.vercel.app/
 
 ## Animated background
 Every page has an animated particle background: a field of small particles gathers into a glowing ring that follows your mouse, and drifts across the page on its own when the mouse is still. Hold the mouse button on an empty spot and let go to make the particles burst outward.

@@ -6,6 +6,13 @@
     <meta name="description" content="Midknight Watcher: an autonomous coding agent built at the 42 Berlin x Needle hackathon.">
     <title>Midknight Watcher — Yu Chuan Oh</title>
 
+    <!-- The site moved to Vercel: send visitors of the old GitHub Pages address to the same page there -->
+    <script>
+        if (location.hostname === 'yc82628.github.io') {
+            location.replace('https://yuchuan.vercel.app' + location.pathname + location.search + location.hash);
+        }
+    </script>
+
     <!-- Apply the saved light/dark theme before the page draws, so it never flashes dark first -->
     <script>
         try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}
